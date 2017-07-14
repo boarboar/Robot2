@@ -238,11 +238,26 @@ boolean CommManager::ProcessCommand()
         break;   
     case REG_RESET:
         // requires one parameter with fixed value of 100
-        if(vcnt<1 || val[0]!=100) { rc=-21; break; }        
-        vAddAlarm(CM_ALARM, CM_MODULE_SYS, 100);
-        xLogger.vAddLogMsg("RST");           
-        vTaskDelay(2000);                
-        nvic_sys_reset();
+        if(vcnt<1 || (val[0]!=1 && val[0]!=2)) { rc=-21; break; }        
+        if(val[0]==2) {
+          // full delay
+          vAddAlarm(CM_ALARM, CM_MODULE_SYS, 100);
+          xLogger.vAddLogMsg("RST");           
+          vTaskDelay(2000);                
+          nvic_sys_reset();
+        } else {
+          // integrator rest
+          if(MpuDrv::Mpu.Acquire()) {
+            MpuDrv::Mpu.resetIntegrator();
+            MpuDrv::Mpu.Release();
+          }      
+          if(xMotion.Acquire()) {
+            xMotion.Reset();
+            val[3]=xMotion.GetAdvanceCm();
+            vcnt+=3;
+            xMotion.Release();
+          }
+        }
         break;             
     default:;        
   }

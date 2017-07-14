@@ -37,15 +37,17 @@ public:
     CTL_LOG_PID=100, CTL_LOG_POW=101, CTL_LOG_PBPID=102};
     */
   enum FailReason {CTL_FAIL_NONE=0, CTL_FAIL_INIT=1, CTL_FAIL_WRT=2, CTL_FAIL_RD=3 };  
+  enum ResetLevels {CTL_RST_NONE=0, CTL_RST_CTL=1, CTL_RST_IMU=2};  
   static Controller ControllerProc; // singleton  
   
   
   bool init();
+  bool reset();
   //bool start();
   
   uint8_t getStatus();
   
-  void needReset();
+  void setReset(uint8_t reset_lvl);
   uint8_t isNeedReset();
   bool process(float yaw, uint32_t dt);  
   
@@ -59,7 +61,13 @@ public:
   bool setTargBearing(int16_t s);
 
   uint8_t getNumSensors();
-  
+
+  int16_t getX_cm();
+  int16_t getY_cm();
+  int16_t getDist_cm();
+  int16_t getYaw_grad();
+  int16_t *getSensors();  
+
   /*
    int16_t getTargSpeed();
   
@@ -86,6 +94,8 @@ protected:
   Controller();
   uint8_t _testConnection();
   uint8_t _getNumSensors();
+  uint8_t _getData();
+  uint8_t _resetIMU();
   /*
   //bool getControllerStatus();
   //bool getActRotRate(); // in RPS
@@ -101,8 +111,12 @@ protected:
 private:  
   CommManager cmgr;
   uint8_t cready;
-  uint8_t need_reset;
+  uint8_t reset_lvl;
   uint8_t nsens;
+  int16_t crd[2];
+  int16_t dist;
+  int16_t yaw;
+  int16_t sensors[SENS_SIZE];
   
 /*
   uint8_t data_ready;

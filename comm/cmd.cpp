@@ -87,32 +87,6 @@ int16_t CmdProc::doCmd() {
 
 int16_t CmdProc::getSysLogLevel() { return CfgDrv::Cfg.log_on;}
 
-/*
-boolean CmdProc::sendSysLog(const char *buf) {
-  if(CfgDrv::Cfg.log_on<SL_LEVEL_MESSAGE) return false;
-  StaticJsonBuffer<200> jsonBufferOut;
-  JsonObject& rootOut = jsonBufferOut.createObject();
-  rootOut["C"] = "I";
-  rootOut["T"] = millis();
-  rootOut["M"] = buf;
-  _sendToSysLog(rootOut);
-  return true;
-}
-
-boolean CmdProc::sendSysLogStatus() {
-  //{"C": "L", "T":12345, "R":0, "YPR": [59, 12, 13], "A": [0.01, 0.02, -0.03], "V": [0.1, 0.2, -0.3]}
-  if(CfgDrv::Cfg.log_on<SL_LEVEL_MESSAGE) return false;
-  StaticJsonBuffer<400> jsonBufferOut;
-  JsonObject& rootOut = jsonBufferOut.createObject();
-  //char bufout[BUF_SZ];
-  rootOut["C"] = "L";
-  rootOut["T"] = millis();
-  rootOut["R"] = c_getpos(rootOut, rootOut); 
-  _sendToSysLog(rootOut);
-  return true;
-}
-*/
-
 boolean CmdProc::sendEvent(uint16_t id, uint8_t module,  uint8_t level, uint8_t code, int8_t npa, int16_t *pa) {
   //if(CfgDrv::Cfg.log_on<SL_LEVEL_ALARM) return false; //!!! should be adjusted with level
   StaticJsonBuffer<400> jsonBufferOut;
@@ -219,31 +193,29 @@ int16_t c_setsyslog(JsonObject& root, JsonObject& /*rootOut*/) {
 
 int16_t c_setpidp(JsonObject& root, JsonObject& /*rootOut*/) {
   if(CfgDrv::Cfg.setPidParams(root)) {
-    Controller::ControllerProc.needReset();
+    Controller::ControllerProc.setReset(Controller::CTL_RST_CTL);
     return 0;
   }
   return -3;
 }
+
 int16_t c_resetMPU(JsonObject& root, JsonObject& rootOut) {
   const char *action=root["A"];
   if(!action || !*action) return -3;
-  /*
-   * !!!!!!!!!!!!!
   if(!strcmp(action, "MPU")) {
     Serial.println(F("Req to RST MPU/CTL...")); 
-    //MpuDrv::Mpu.init();
-    MpuDrv::Mpu.needReset();
-    Controller::ControllerProc.needReset();
+    Controller::ControllerProc.setReset(Controller::CTL_RST_IMU);
   } else if(!strcmp(action, "MPU_INT")) {
     Serial.println(F("Resetting MPU/CTL integrator...")); 
-    MpuDrv::Mpu.resetIntegrator();
+    //MpuDrv::Mpu.resetIntegrator();
     //Controller::ControllerProc.resetIntegrator();
-    Controller::ControllerProc.needReset();
+    Controller::ControllerProc.setReset(Controller::CTL_RST_CTL);
   } else return -3;
+  /*
   JsonArray& r = rootOut.createNestedArray("CRD");
   r.add((int)Controller::ControllerProc.getX());
   r.add((int)Controller::ControllerProc.getY());
-  r.add(0); // Z-crd
+  r.add(0); // Z-crd  
   */
   return 0;
 }
@@ -251,6 +223,26 @@ int16_t c_resetMPU(JsonObject& root, JsonObject& rootOut) {
 
 int16_t c_getpos(JsonObject& /*root*/, JsonObject& rootOut) {
   //{"C": "I", "T":12345, "R":0, "C": "POS", "YPR": [59, 12, 13], "A": [0.01, 0.02, -0.03], "P": [100.01, 200.44, 0.445]}
+  int16_t i;
+  JsonArray& ya = rootOut.createNestedArray("YPR");
+  ya.add(Controller::ControllerProc.getYaw_grad());
+  ya.add(0);
+  ya.add(0);
+  JsonArray& r = rootOut.createNestedArray("CRD");
+  r.add(Controller::ControllerProc.getX_cm());
+  r.add(Controller::ControllerProc.getY_cm());
+  r.add(0); // Z-crd
+  JsonArray& pw = rootOut.createNestedArray("W");
+  //int16_t *pwrs=Controller::ControllerProc.getStoredPower();
+  //pw.add(pwrs[0]), pw.add(pwrs[1]);  
+  pw.add(0), pw.add(0);  
+  uint8_t ns=Controller::ControllerProc.getNumSensors();
+  JsonArray& s = rootOut.createNestedArray("S");
+  for(i=0; i<ns; i++) s.add((int)Controller::ControllerProc.getSensors()[i]);
+  rootOut["D"]=Controller::ControllerProc.getDist_cm();
+  //rootOut["V"]=(int16_t)(Controller::ControllerProc.getSpeed());
+  rootOut["V"]=0;
+  
   /*
    * !!!!!!!!!!!!!!!!!
   rootOut["MST"]=MpuDrv::Mpu.getStatus();

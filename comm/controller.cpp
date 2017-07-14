@@ -21,22 +21,25 @@ const int M_CTR_OBST_MAX_TURN=45;
     
 Controller Controller::ControllerProc ; // singleton
 
-Controller::Controller() : cready(false), nsens(0)/*, act_advance{0}, act_power{0},sensors{0}*/ {
+Controller::Controller() : cready(false), reset_lvl(CTL_RST_NONE), nsens(0) /*, act_advance{0}, act_power{0},sensors{0}*/ {
   }
 
 uint8_t Controller::getStatus() { return cready; }
 
 //uint8_t Controller::isDataReady() { return pready && data_ready; }
 
-uint8_t Controller::isNeedReset() { return need_reset; }
-void    Controller::needReset() {  need_reset=true; }
+uint8_t Controller::isNeedReset() { return reset_lvl; }
+void    Controller::setReset(uint8_t reset_lvl) {  this->reset_lvl=reset_lvl; }
 
 
 bool Controller::init() {
   cmgr.Init();
   cready=false;
-  need_reset=false; 
- 
+  crd[0]=crd[1]=0;
+  dist=0;
+  yaw=0;
+  for(int i=0; i<SENS_SIZE; i++) sensors[i]=-2;
+  
   /*
   data_ready=0;
   //fail_reason=0;
@@ -49,7 +52,6 @@ bool Controller::init() {
   targ_speed=0;
   rot_speed=0;
   proc_step=0;
-  for(int i=0; i<SENS_SIZE; i++) sensors[i]=-2;
   */
   //resetIntegrator();
   
@@ -57,14 +59,28 @@ bool Controller::init() {
   if(cready) {
     Logger::Instance.putEvent(Logger::UMP_LOGGER_MODULE_CTL, Logger::UMP_LOGGER_EVENT, CTL_FAIL_INIT, "CTL_INT_OK");  
     nsens=_getNumSensors();    
+    reset_lvl=CTL_RST_NONE;     
     yield();
     //setStart(0);  
   } else {
     Logger::Instance.putEvent(Logger::UMP_LOGGER_MODULE_CTL,  Logger::UMP_LOGGER_ALARM, CTL_FAIL_INIT, "CTL_INT_FL");  
-    need_reset=true;
+    reset_lvl=CTL_RST_CTL; 
   }
-
   return cready;
+}
+
+bool Controller::reset() {
+    switch(reset_lvl) {
+      case CTL_RST_IMU :
+        _resetIMU();
+        reset_lvl=CTL_RST_CTL; 
+        break;
+      case CTL_RST_CTL :  
+        init();
+        break;
+     default:;
+    }
+  return true;
 }
 
 /*
@@ -103,6 +119,9 @@ bool Controller::start() {
 
 bool Controller::process(float yaw, uint32_t dt) {
   if(!cready) return false;
+
+  if(!_getData()) return false;
+  
 /*  
     getActAdvance();
     
@@ -173,6 +192,13 @@ bool Controller::process(float yaw, uint32_t dt) {
 
 uint8_t Controller::getNumSensors() { return nsens;}
 
+int16_t Controller::getX_cm() { return crd[0];}
+int16_t Controller::getY_cm() { return crd[1];}
+int16_t Controller::getDist_cm() { return dist;}
+int16_t Controller::getYaw_grad() { return yaw;}
+
+int16_t *Controller::getSensors() { return sensors;}
+
 /*
 //int16_t *Controller::getTargPower() { return targ_pow;}
 int16_t Controller::getTargSpeed() { return targ_speed/10;}
@@ -180,16 +206,14 @@ int16_t Controller::getTargSpeed() { return targ_speed/10;}
 //float *Controller::getStoredRotRate() { return act_rot_rate;}
 int32_t *Controller::getStoredAdvance() { return act_advance;}
 int16_t *Controller::getStoredPower() { return act_power;}
-int16_t *Controller::getStoredSensors() { return sensors;}
 //float Controller::getMovement() { return mov;}
 //float Controller::getRotation() { return rot;}
 float Controller::getDistance() { return dist*0.1f;} //cm
 int16_t Controller::getSpeed() { return speed/10;} // cm/s
 //float Controller::getAngle() { return angle;}
 //float *Controller::getCoords() { return r;}
-float Controller::getX() { return r[0]*0.1f;}
-float Controller::getY() { return r[1]*0.1f;}
 */
+
 
 /*
 float Controller::getAVQErr() {
@@ -215,6 +239,40 @@ uint8_t Controller::_getNumSensors() {
   return *(cmgr.GetResultVal());
 }
 
+uint8_t Controller::_resetIMU() {
+  int16_t v=reset_lvl;
+  cmgr.Set(REG_RESET, &v, 1);  
+  // do not expect answer
+  return true;
+}
+
+
+uint8_t Controller::_getData() {
+  int res=cmgr.Get(REG_ALL);
+  
+  if(res!=0 || cmgr.GetResultCnt()==0) {
+    Logger::Instance.putEvent(Logger::UMP_LOGGER_MODULE_CTL, Logger::UMP_LOGGER_ALARM, CTL_FAIL_RD, REG_ALL, res, cmgr.GetResultCnt());
+    return 0;
+  }
+
+  uint16_t cnt=cmgr.GetResultCnt();
+  const int16_t *v=cmgr.GetResultVal();
+
+  // yaw[0] X[1] Y[2] Dist[4] Sens[4..]
+
+  yaw=v[0];
+
+  if(cnt<3) return true;  
+  crd[0]=v[1];
+  crd[1]=v[2];
+  if(cnt<4) return true;
+  dist=v[3];
+
+  if(cnt<nsens+4) return true;
+  for(int i=0; i<nsens; i++) sensors[i]=v[4+i];
+  
+  return true;
+}
 
 bool Controller::setTargPower(float l, float r) {
   /*

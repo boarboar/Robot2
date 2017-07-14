@@ -16,7 +16,8 @@ const char* password = "boarboar";
 const char* cfg_file = "/config.json";
 const int udp_port = 4444;
 const int CYCLE_TO = 5;
-const int CYCLE_MED_TO = 50;
+//const int CYCLE_MED_TO = 50;
+const int CYCLE_MED_TO = 1000; // test only
 const int CYCLE_SLOW_TO = 2000;
 //const int MPU_SDA=0;
 //const int MPU_SDL=2;
@@ -142,8 +143,9 @@ void doCycle() {
   if(Controller::ControllerProc.isNeedReset()) {
     //cmd.sendAlarm(CmdProc::ALR_CTL_RESET, 0);
     Logger::Instance.putEvent(Logger::UMP_LOGGER_MODULE_CTL,  Logger::UMP_LOGGER_ALARM, -1, "NEEDRST");  
-    Controller::ControllerProc.init();
-    //if(!mpu_rst) Controller::ControllerProc.start(); // forced start for testing purposes...
+    Controller::ControllerProc.reset();
+    //Controller::ControllerProc.init();
+    //if(!mpu_rst) Controller::ControllerProc.start(); // forced start for testing purposes...    
     yield();
   }
   
