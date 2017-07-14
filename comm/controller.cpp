@@ -117,7 +117,7 @@ bool Controller::start() {
 }
 */
 
-bool Controller::process(float yaw, uint32_t dt) {
+bool Controller::process(/*float yaw, uint32_t dt*/) {
   if(!cready) return false;
 
   if(!_getData()) return false;

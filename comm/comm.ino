@@ -45,23 +45,17 @@ void setup() {
   }
 
   byte mac[6]; 
+  uint8_t i = 0;
   WiFi.macAddress(mac);
   Serial.print(F("MAC: "));
-  Serial.print(mac[5],HEX);
-  Serial.print(F(":"));
-  Serial.print(mac[4],HEX);
-  Serial.print(F(":"));
-  Serial.print(mac[3],HEX);
-  Serial.print(F(":"));
-  Serial.print(mac[2],HEX);
-  Serial.print(F(":"));
-  Serial.print(mac[1],HEX);
-  Serial.print(F(":"));
-  Serial.println(mac[0],HEX);
-  
+  for(i=0; i<6; i++) {
+    Serial.print(mac[i],HEX);
+    if(i<5) Serial.print(F(":"));
+  }
+ 
   WiFi.begin(ssid, password);
   Serial.print(F("\nConnecting to ")); Serial.print(ssid);
-  uint8_t i = 0;
+  i = 0;
   while (WiFi.status() != WL_CONNECTED && i++ < 20) {delay(500); Serial.print(".");}
   Serial.println();
   if(i == 21){
@@ -130,8 +124,9 @@ void doCycle() {
   if(dt < CYCLE_MED_TO) return;
   last_med_cycle = t;
 
+  Controller::ControllerProc.process();
   // basically - nothing to do
-  Logger::Instance.flushEvents();
+  Logger::Instance.flushEvents(); // here????
   
 // Do slow cycle // (2000 ms)
   dt=t-last_slow_cycle;
