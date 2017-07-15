@@ -138,7 +138,7 @@ void Sensor::DoCycle() {
     taskENTER_CRITICAL();
     xServo.write(sservo_angle);
     taskEXIT_CRITICAL();
-    vTaskDelay(200);
+    vTaskDelay(400);
     for(uint16_t sens_step=0; sens_step<2; sens_step++) {  
       int8_t current_sens=-sservo_pos+SERVO_NSTEPS+sens_step*(SERVO_NSTEPS*2+1); 
       int16_t pin_in=sens_in_pin[sens_step];
