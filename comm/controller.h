@@ -60,6 +60,7 @@ public:
   bool setTargSpeed(int16_t s);
   bool setTargBearing(int16_t s);
 
+  uint8_t getIMUStatus();
   uint8_t getNumSensors();
 
   int16_t getX_cm();
@@ -113,6 +114,7 @@ private:
   uint8_t cready;
   uint8_t reset_lvl;
   uint8_t nsens;
+  int16_t imu_stat;
   int16_t crd[2];
   int16_t dist;
   int16_t yaw;

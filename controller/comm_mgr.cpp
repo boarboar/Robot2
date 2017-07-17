@@ -137,19 +137,23 @@ boolean CommManager::ProcessCommand()
         }
         break;
       case REG_ALL:
-        // yaw, X, Y
+         // St[0] yaw[1] X[2] Y[3] Dist[4] Sens[5..14]
+        for(uint16_t i=0; i<CM_NVAL; i++) val[i]=0; 
+         
         vcnt=0;
         if(MpuDrv::Mpu.Acquire()) {
-          val[0]=MpuDrv::Mpu.getYaw()*180.0/PI;
-          vcnt++;
+          val[0]=MpuDrv::Mpu.getStatus();
+          val[1]=MpuDrv::Mpu.getYaw()*180.0/PI;
+          //vcnt++;
           MpuDrv::Mpu.Release();
         }
         if(xMotion.Acquire()) {
-          xMotion.GetCrdCm(val+1); //val[1,2]
-          val[3]=xMotion.GetAdvanceCm();
-          vcnt+=3;
+          xMotion.GetCrdCm(val+2); 
+          val[4]=xMotion.GetAdvanceCm();
+          //vcnt+=3;
           xMotion.Release();
         }
+        vcnt=5;
         if(xSensor.Acquire()) {
           uint16_t nmeas=xSensor.GetNMeas();          
           xSensor.Get(val+vcnt, nmeas);

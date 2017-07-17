@@ -165,6 +165,7 @@ int16_t c_info(JsonObject& /*root*/, JsonObject& rootOut) {
   //Serial.println("INFO"); 
   //rootOut["MST"]=MpuDrv::Mpu.getStatus();
   //rootOut["MDR"]=MpuDrv::Mpu.isDataReady();
+  rootOut["MST"]=Controller::ControllerProc.getIMUStatus();
   rootOut["CST"]=Controller::ControllerProc.getStatus() ? 0 : 6; // tmp
   rootOut["FHS"]=ESP.getFreeHeap();
   rootOut["FSS"]=ESP.getFreeSketchSpace();
@@ -224,6 +225,7 @@ int16_t c_resetMPU(JsonObject& root, JsonObject& rootOut) {
 int16_t c_getpos(JsonObject& /*root*/, JsonObject& rootOut) {
   //{"C": "I", "T":12345, "R":0, "C": "POS", "YPR": [59, 12, 13], "A": [0.01, 0.02, -0.03], "P": [100.01, 200.44, 0.445]}
   int16_t i;
+  rootOut["MST"]=Controller::ControllerProc.getIMUStatus();
   JsonArray& ya = rootOut.createNestedArray("YPR");
   ya.add(Controller::ControllerProc.getYaw_grad());
   ya.add(0);

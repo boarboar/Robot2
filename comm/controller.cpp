@@ -5,6 +5,8 @@
 #include "cfg.h"
 #include "logger.h"
 
+const int M_POW_NORM=100;
+
 /*
 const int DEV_ID=4;
 const int M_POW_MIN=30; 
@@ -38,6 +40,7 @@ bool Controller::init() {
   crd[0]=crd[1]=0;
   dist=0;
   yaw=0;
+  imu_stat=0;
   for(int i=0; i<SENS_SIZE; i++) sensors[i]=-2;
   
   /*
@@ -72,6 +75,7 @@ bool Controller::init() {
 bool Controller::reset() {
     switch(reset_lvl) {
       case CTL_RST_IMU :
+        imu_stat=0;
         _resetIMU();
         reset_lvl=CTL_RST_CTL; 
         break;
@@ -190,8 +194,8 @@ bool Controller::process(/*float yaw, uint32_t dt*/) {
   return true;
 }
 
+uint8_t Controller::getIMUStatus() { return imu_stat;}
 uint8_t Controller::getNumSensors() { return nsens;}
-
 int16_t Controller::getX_cm() { return crd[0];}
 int16_t Controller::getY_cm() { return crd[1];}
 int16_t Controller::getDist_cm() { return dist;}
@@ -258,18 +262,17 @@ uint8_t Controller::_getData() {
   uint16_t cnt=cmgr.GetResultCnt();
   const int16_t *v=cmgr.GetResultVal();
 
-  // yaw[0] X[1] Y[2] Dist[4] Sens[4..]
+  // St[0] yaw[1] X[2] Y[3] Dist[4] Sens[5..]
+  imu_stat=v[0];
+  yaw=v[1];
+  if(cnt<4) return true;  
+  crd[0]=v[2];
+  crd[1]=v[3];
+  if(cnt<5) return true;
+  dist=v[4];
 
-  yaw=v[0];
-
-  if(cnt<3) return true;  
-  crd[0]=v[1];
-  crd[1]=v[2];
-  if(cnt<4) return true;
-  dist=v[3];
-
-  if(cnt<nsens+4) return true;
-  for(int i=0; i<nsens; i++) sensors[i]=v[4+i];
+  if(cnt<nsens+5) return true;
+  for(int i=0; i<nsens; i++) sensors[i]=v[5+i];
   
   return true;
 }
@@ -292,6 +295,10 @@ bool Controller::setTargPower(float l, float r) {
   if(!setPower(cur_pow)) return false;
   return true;
   */
+  int16_t v[2];  
+  v[0]=l*M_POW_NORM; v[1]=r*M_POW_NORM; // temp  
+  Serial.print(F("DPOW=")); Serial.print(v[0]); Serial.print(F("\t ")); Serial.println(v[1]);
+  if(0==cmgr.Set(REG_MOTOR_POWER, v, 2)) return true;    
   return false;
 }
 

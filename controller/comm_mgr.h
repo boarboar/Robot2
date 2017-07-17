@@ -1,5 +1,5 @@
 
-#define CM_BUF_SIZE 64
+#define CM_BUF_SIZE 80
 #define CM_NVAL     16
 
 #define CM_ID 94
