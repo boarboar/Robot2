@@ -50,6 +50,7 @@ public:
   void setReset(uint8_t reset_lvl);
   uint8_t isNeedReset();
   bool process(/*float yaw, uint32_t dt*/);  
+  bool processAlarms();
   
   /*
   uint8_t isDataReady();

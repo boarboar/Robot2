@@ -194,6 +194,24 @@ bool Controller::process(/*float yaw, uint32_t dt*/) {
   return true;
 }
 
+
+bool Controller::processAlarms() {
+  if(!cready) return false;
+  while(0==cmgr.Get(REG_ALARM) && cmgr.GetResultCnt()!=0) {
+      int n=cmgr.GetResultCnt();    
+      const int16_t *va=cmgr.GetResultVal();
+      Serial.print("ALR :");
+      
+      for(int i=0; i<n; i++) {
+        Serial.print(va[i]);    
+        Serial.print(" ");
+      }
+      Serial.println();
+  }
+  return true;
+}
+
+
 uint8_t Controller::getIMUStatus() { return imu_stat;}
 uint8_t Controller::getNumSensors() { return nsens;}
 int16_t Controller::getX_cm() { return crd[0];}
@@ -348,7 +366,12 @@ bool Controller::setTargSpeed(int16_t tspeed) {
   //Serial.print(F("STV TV=")); Serial.print(targ_speed); Serial.print(F("POW=")); Serial.print(cur_pow[0]); Serial.print(F("\t ")); Serial.println(cur_pow[1]);
   if(!setPowerStraight(targ_speed, cur_pow)) return false;
   */
-  return true;
+
+  int16_t v;  
+  v=tspeed; 
+  Serial.print(F("MOV=")); Serial.println(v);
+  if(0==cmgr.Set(REG_MOVE, &v, 1)) return true;      
+  return false;
 }
 
 /*

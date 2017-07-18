@@ -125,14 +125,14 @@ void doCycle() {
   last_med_cycle = t;
 
   Controller::ControllerProc.process();
-  // basically - nothing to do
+  Controller::ControllerProc.processAlarms();  
   Logger::Instance.flushEvents(); // here????
   
 // Do slow cycle // (2000 ms)
   dt=t-last_slow_cycle;
   if(dt < CYCLE_SLOW_TO) return;
   last_slow_cycle = t;
-  
+
   yield();
 
   if(Controller::ControllerProc.isNeedReset()) {

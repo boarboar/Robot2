@@ -62,6 +62,7 @@ boolean CommManager::ReadSerialCommand()
 // list := '[' int [,] ... ']'
 boolean CommManager::ProcessCommand()
 {
+  RetCodes rc=CM_RC_OK;
   *msgdbg=0;  
   // check crc
   uint8_t crc=CRC();
@@ -175,10 +176,15 @@ boolean CommManager::ProcessCommand()
         }  
         break;  
       default:;
+        rc=CM_RC_FAIL_BADREG;
         vcnt=0;
     }
-    if(!vcnt) Respond(CM_RC_FAIL_BADREG, 0, "BAD REG");    
+    /*
+    if(CM_RC_FAIL_BADREG==rc) Respond(CM_RC_FAIL_BADREG, 0, "BAD REG");    
     else Respond(CM_RC_OK, vcnt);    
+    */
+
+    Respond(rc, vcnt, CM_RC_FAIL_BADREG==rc ? "BAD REG" : NULL);    
     return true;
   }
 
@@ -220,29 +226,29 @@ boolean CommManager::ProcessCommand()
     itoa_cat(val[0], msgdbg);
   }
 
-  int8_t rc=0;
+  //int8_t rc=0;
   switch(reg) {    
     //case REG_ID:
     //    break;    
     case REG_MOTOR_POWER:
-        if(vcnt<2) { rc=-21; break; }
+        if(vcnt<2) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
         xMotion.SetMotors(val[0], val[1]);
         break;
     case REG_MOVE:
-        if(vcnt<1) { rc=-21; break; }
+        if(vcnt<1) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
         xMotion.Move(val[0]);
         break;    
     case REG_STEER:
-        if(vcnt<1) { rc=-21; break; }
+        if(vcnt<1) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
         xMotion.Steer(val[0]);
         break;    
     case REG_MOVE_BEAR:
-        if(vcnt<1) { rc=-21; break; }
+        if(vcnt<1) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
         xMotion.MoveBearing(val[0]);
         break;   
     case REG_RESET:
         // requires one parameter with fixed value of 100
-        if(vcnt<1 || (val[0]!=1 && val[0]!=2)) { rc=-21; break; }        
+        if(vcnt<1 || (val[0]!=1 && val[0]!=2)) { rc=CM_RC_FAIL_TOOLESSVALS; break; }        
         if(val[0]==2) {
           // full delay
           vAddAlarm(CM_ALARM, CM_MODULE_SYS, 100);
@@ -266,7 +272,7 @@ boolean CommManager::ProcessCommand()
     default:;        
   }
 
-  Respond(rc);   
+  Respond(rc, 0, CM_RC_FAIL_TOOLESSVALS==rc ? "TOO_LESS_VALS" : NULL);   
   return true;
 }
 
