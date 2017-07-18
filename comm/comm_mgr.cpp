@@ -176,8 +176,11 @@ int CommManager::Command(char *cmd)
         if(buf[pos]==',') pos++;
     }        
   } else {
-    vcnt=1;
-    val[0]=ReadInt();    
+    while(isspace(buf[pos])) pos++;
+    if(buf[pos]) {
+      vcnt=1;
+      val[0]=ReadInt();   
+    } 
   }
   
   //Serial.print("OK (");
