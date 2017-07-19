@@ -66,6 +66,7 @@ void ComLogger::vAddLogMsg(const char *pucMsg1, int16_t i1, const char *pucMsg2,
     }
 }
 
+/*
 void ComLogger::vAddLogMsg(const char *pucMsg1, int16_t i1, int16_t i2, int16_t i3) {
    if ( xSemaphoreTake( xLogFree, ( portTickType ) 10 ) == pdTRUE )
     {
@@ -79,6 +80,26 @@ void ComLogger::vAddLogMsg(const char *pucMsg1, int16_t i1, int16_t i2, int16_t 
       itoa_cat(i2, txMessage.ucData);
       strncat(txMessage.ucData, ",", CLOG_MSG_SZ);          
       itoa_cat(i3, txMessage.ucData);
+      
+      xQueueSendToBack( xLogQueue, ( void * ) &txMessage, ( TickType_t ) 0 );          
+      xSemaphoreGive( xLogFree );
+    }
+}
+*/
+
+void ComLogger::vAddLogMsg(const char *pucMsg1, int32_t i1, int32_t i2, int32_t i3) {
+   if ( xSemaphoreTake( xLogFree, ( portTickType ) 10 ) == pdTRUE )
+    {
+      txMessage.ucMessageID++;     
+      if(pucMsg1) 
+        strncpy(txMessage.ucData, pucMsg1, CLOG_MSG_SZ);          
+      else *txMessage.ucData=0;  
+      strncat(txMessage.ucData, ":", CLOG_MSG_SZ);          
+      ltoa_cat(i1, txMessage.ucData);
+      strncat(txMessage.ucData, ",", CLOG_MSG_SZ);          
+      ltoa_cat(i2, txMessage.ucData);
+      strncat(txMessage.ucData, ",", CLOG_MSG_SZ);          
+      ltoa_cat(i3, txMessage.ucData);
       
       xQueueSendToBack( xLogQueue, ( void * ) &txMessage, ( TickType_t ) 0 );          
       xSemaphoreGive( xLogFree );

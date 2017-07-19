@@ -327,7 +327,12 @@ bool Controller::setTargSteering(int16_t s) {
   
   else
   */
-  return true;  
+  int16_t v;  
+  v=s; 
+  Serial.print(F("STR=")); Serial.println(v);
+  if(0==cmgr.Set(REG_STEER, &v, 1)) return true;      
+  return false;
+  
 }
 
 bool Controller::setTargBearing(int16_t s) {
@@ -335,7 +340,13 @@ bool Controller::setTargBearing(int16_t s) {
   adjustTargBearing(s, false);
   if(!rot_speed && !targ_speed) return startRotate(M_SPEED_NORM);
   else*/
-  return true;  
+
+  int16_t v;  
+  v=s; 
+  Serial.print(F("BER=")); Serial.println(v);
+  if(0==cmgr.Set(REG_MOVE_BEAR, &v, 1)) return true;      
+  return false;
+  
 }
 
 bool Controller::setTargSpeed(int16_t tspeed) {
