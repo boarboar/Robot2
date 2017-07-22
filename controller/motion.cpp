@@ -174,7 +174,7 @@ void Motion::Steer(int16_t angle)
   if(!bReady) return;
   xLogger.vAddLogMsg("ROT A:", angle);
   AdjustTargBearing(angle, true);
-  //if(!iTargRot && !iTaregSpeed) return startRotate(M_SPEED_NORM);
+  if(!iTargRot && !iTargSpeed) return StartRotate(M_SPEED_NORM);
 }
 
 void Motion::MoveBearing(int16_t angle)
@@ -182,7 +182,7 @@ void Motion::MoveBearing(int16_t angle)
   if(!bReady) return;
   xLogger.vAddLogMsg("BER A:", angle);
   AdjustTargBearing(angle, false);
-  //if(!iTargRot && !iTaregSpeed) return startRotate(M_SPEED_NORM);
+  if(!iTargRot && !iTargSpeed) return StartRotate(M_SPEED_NORM);
 }
 
 void Motion::AdjustTargBearing(int16_t s, bool absolute) {
@@ -219,11 +219,13 @@ void Motion::StartRotate(int16_t tspeed) {
 }
 
 void Motion::SetPowerStraight(int16_t dir, int16_t *p) {
+  //xLogger.vAddLogMsg("POWS:", dir, p[0], p[1]);
   if(dir>0) SetMotors(p[0], p[1]);
   else SetMotors(-p[0], -p[1]);  
 }
 
 void Motion::SetPowerRotate(int16_t dir, int16_t *p) {
+  //xLogger.vAddLogMsg("POWR:", dir, p[0], p[1]);
   if(dir>0) SetMotors(p[0], -p[1]);
   else SetMotors(-p[0], p[1]);  
 }
@@ -232,6 +234,7 @@ void Motion::SetPowerRotate(int16_t dir, int16_t *p) {
 void Motion::SetMotors(int8_t dp1, int8_t dp2) // in %%
 {
   if(!bReady) return;
+  //xLogger.vAddLogMsg("SETM:", dp1, dp2, 0);
   if(pxMotor->Acquire()) {
     pxMotor->SetMotors(dp1, dp2);     
     pxMotor->Release();
