@@ -30,14 +30,14 @@
 
 // PWM ports (check!)
 #define SERVO_1_PIN PA8 
-#define MOTOR_EN_1_PIN PA2 
-#define MOTOR_EN_2_PIN PA1 
+#define MOTOR_EN_1_PIN PA1 
+#define MOTOR_EN_2_PIN PA2 
 
 // GPIO
-#define MOTOR_OUT_1_1_PIN PA6
-#define MOTOR_OUT_1_2_PIN PA5
-#define MOTOR_OUT_2_1_PIN PA3
-#define MOTOR_OUT_2_2_PIN PA2
+#define MOTOR_OUT_1_1_PIN PA3
+#define MOTOR_OUT_1_2_PIN PA4
+#define MOTOR_OUT_2_1_PIN PA5
+#define MOTOR_OUT_2_2_PIN PA6
 
 // 5v Tolerant ports (check!)
 #define MOTOR_ENC_1_PIN  PB9
