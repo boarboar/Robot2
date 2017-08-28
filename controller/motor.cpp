@@ -166,6 +166,6 @@ void Motor::Low_Drive(uint8_t i)
   else {
     digitalWrite(m[i].pin_1, HIGH); digitalWrite(m[i].pin_2, LOW); 
   } 
-  pwmWrite(m[i].pin_enab, m[i].power==0);
+  pwmWrite(m[i].pin_enab, m[i].power);
 } 
 
