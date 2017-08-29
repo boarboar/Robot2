@@ -18,6 +18,26 @@
  
  */
 
+/*
+ * vacant ports
+ * ===Side 1
+ * PA0
+ * PA7  PWM
+ * PB0  PWM
+ * PB1  PWM
+ * PC14 low_current not use as a constant current source eg LED
+ * PC15 low_current not use as a constant current source eg LED
+ * ===Side 2
+ * PA9  PWM FT
+ * PA10 PWM FT
+ * PA11 PWM FT
+ * PA12     FT
+ * PA15 PWM FT
+ * PB3  PWM FT
+ * PB4  PWM FT
+ * PB5  PWM
+ */
+
 #define BOARD_LED_PIN PC13
 
 // Serial MCU comm
@@ -83,7 +103,7 @@ static void vCommTask(void *pvParameters) {
 static void vLazyTask(void *pvParameters) {
     float yaw; 
     //nt16_t val;
-    uint16_t enc[2];
+    uint16_t enc[2]={0,0};
     uint8_t needReset=0;
     int8_t imu_status=0;
     int16_t vcnt=0;
@@ -116,7 +136,7 @@ static void vLazyTask(void *pvParameters) {
                //xLogger.vAddLogMsg("S[10]", val[9]);          
             }
             //val = yaw*180.0/PI;
-            xLogger.vAddLogMsg("Y", (int16_t)yaw*180.0/PI);    
+            //xLogger.vAddLogMsg("Y", (int16_t)yaw*180.0/PI);    
         }
         /*      
         if(xSensor.Acquire()) {
@@ -127,9 +147,10 @@ static void vLazyTask(void *pvParameters) {
         if (xMotor.Acquire()) { 
           xMotor.GetEncDist(enc, NULL);
           xMotor.Release();
-          xLogger.vAddLogMsg("E1", enc[0], "E2", enc[1]);           
+          //xLogger.vAddLogMsg("E1", enc[0], "E2", enc[1]);           
         }
-        
+
+       xLogger.vAddLogMsg("Y,E*", (int16_t)yaw*180.0/PI, enc[0], enc[1]);             
 
        if(needReset) {
           xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_SYS, 101);
