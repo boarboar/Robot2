@@ -150,7 +150,7 @@ static void vLazyTask(void *pvParameters) {
           //xLogger.vAddLogMsg("E1", enc[0], "E2", enc[1]);           
         }
 
-       xLogger.vAddLogMsg("Y,E*", (int16_t)yaw*180.0/PI, enc[0], enc[1]);             
+       xLogger.vAddLogMsg("Y,E*", (int16_t)(yaw*180.0/PI), enc[0], enc[1]);             
 
        if(needReset) {
           xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_SYS, 101);
