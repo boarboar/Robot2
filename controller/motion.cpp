@@ -55,6 +55,10 @@ void Motion::Reset() {
   delta_pow=0;  
 }
 
+bool Motion::HasTask() {
+  return iTargSpeed || iTargRot;
+}
+
 void Motion::DoCycle(float yaw) 
 {
   float mov; //mm
@@ -126,8 +130,10 @@ void Motion::DoCycle(float yaw)
         if(cur_pow[i]>M_POW_MAX) cur_pow[i]=M_POW_MAX; 
       // maybe a better idea would be to make limits proportional to the target?
       }
-      if(iTargSpeed)
-        SetPowerStraight(iTargSpeed, cur_pow);      
+      if(iTargSpeed){
+        xLogger.vAddLogMsg("MV YTB,P*:", (int16_t)(yaw*180.0f/PI), iTargBearing, cur_pow[0], cur_pow[1]);
+        SetPowerStraight(iTargSpeed, cur_pow);       
+      }
       else {
         if(!iTargRot) StartRotate(0); // stop rotate
         else SetPowerRotate(iTargRot, cur_pow);              
@@ -140,7 +146,7 @@ void Motion::DoCycle(float yaw)
 void Motion::Move(int16_t tspeed)
 {
   if(!bReady) return;
-  xLogger.vAddLogMsg("MOV V:", tspeed);
+  //xLogger.vAddLogMsg("MOV V:", tspeed);
   if(iTargSpeed!=0 && tspeed==0) {
     // stop moving    
     //Serial.print(F("Stop TV, AVQE=")); Serial.println(getAVQErr());     
@@ -164,6 +170,7 @@ void Motion::Move(int16_t tspeed)
   delta_pow=0;
    
   int16_t cur_pow[2]={base_pow, base_pow};
+  xLogger.vAddLogMsg("MV TVB,P*:", iTargSpeed, iTargBearing, cur_pow[0], cur_pow[1]);
   //Serial.print(F("STV TV=")); Serial.print(targ_speed); Serial.print(F("POW=")); Serial.print(cur_pow[0]); Serial.print(F("\t ")); Serial.println(cur_pow[1]); 
   SetPowerStraight(iTargSpeed, cur_pow);
   return;

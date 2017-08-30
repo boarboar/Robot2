@@ -90,11 +90,10 @@ static void vCommTask(void *pvParameters) {
         vTaskDelay(10);        
         if(xCommMgr.ReadSerialCommand()) {       
           digitalWrite(BOARD_LED_PIN, LOW);        
-          xLogger.vAddLogMsg(xCommMgr.GetBuffer());    
+          //xLogger.vAddLogMsg(xCommMgr.GetBuffer());    
           xCommMgr.ProcessCommand();
-          xLogger.vAddLogMsg(xCommMgr.GetDbgBuffer());  // debug        
+          //xLogger.vAddLogMsg(xCommMgr.GetDbgBuffer());  // debug        
           xCommMgr.Complete();
-          //xCommMgr.Respond(xCmd.GetResponce());          
           digitalWrite(BOARD_LED_PIN, HIGH);
         }        
     }
@@ -108,10 +107,16 @@ static void vLazyTask(void *pvParameters) {
     int8_t imu_status=0;
     int16_t vcnt=0;
     int16_t val[16];
+    bool hasMotionTask=false;
+    
     xLogger.vAddLogMsg("Lazy Task started.");
     for (;;) {       
         vTaskDelay(2000);  
         yaw=0.f;              
+        if(xMotion.Acquire()) {
+          hasMotionTask=xMotion.HasTask();
+          xMotion.Release();
+        } 
         if(MpuDrv::Mpu.Acquire()) {
           needReset=MpuDrv::Mpu.isNeedReset();
           MpuDrv::Mpu.copyAlarms();     
@@ -120,7 +125,10 @@ static void vLazyTask(void *pvParameters) {
           MpuDrv::Mpu.Release();
         } 
         MpuDrv::Mpu.flushAlarms();   
-        if(imu_status==MpuDrv::ST_READY) {  
+
+        if(!hasMotionTask) {
+          // if idle, do test output
+          if(imu_status==MpuDrv::ST_READY) {  
             //int16_t vcnt=0;
             //int16_t val[16];
             vcnt=0;
@@ -137,21 +145,15 @@ static void vLazyTask(void *pvParameters) {
             }
             //val = yaw*180.0/PI;
             //xLogger.vAddLogMsg("Y", (int16_t)yaw*180.0/PI);    
-        }
-        /*      
-        if(xSensor.Acquire()) {
-          xLogger.vAddLogMsg("Y", val, "S", xSensor.Get());           // BAD!!!
-          xSensor.Release();  
-        }
-        */
-        if (xMotor.Acquire()) { 
-          xMotor.GetEncDist(enc, NULL);
-          xMotor.Release();
-          //xLogger.vAddLogMsg("E1", enc[0], "E2", enc[1]);           
-        }
-
-       xLogger.vAddLogMsg("Y,E*", (int16_t)(yaw*180.0/PI), enc[0], enc[1]);             
-
+          }
+          if (xMotor.Acquire()) { 
+            xMotor.GetEncDist(enc, NULL);
+            xMotor.Release();
+            //xLogger.vAddLogMsg("E1", enc[0], "E2", enc[1]);           
+          }
+         xLogger.vAddLogMsg("Y,E*", (int16_t)(yaw*180.0/PI), enc[0], enc[1]);             
+         }
+       
        if(needReset) {
           xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_SYS, 101);
           xLogger.vAddLogMsg("IMURST");           
@@ -198,7 +200,8 @@ static void vSensorTask(void *pvParameters) {
 static void vMotionTask(void *pvParameters) {
     xLogger.vAddLogMsg("Motion Task started.");    
     for (;;) { 
-      vTaskDelay(100); // should be less
+      //vTaskDelay(100); // should be less
+      vTaskDelay(1000); // should be less, just for tests
       float yaw=0;
       if(MpuDrv::Mpu.Acquire()) {
         MpuDrv::Mpu.process();           

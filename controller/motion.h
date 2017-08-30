@@ -13,6 +13,7 @@ class Motion {
     void GetAdvance(uint32_t *dst_dist);
     void GetCrdCm(int16_t *crd);
     int16_t GetAdvanceCm();
+    bool HasTask();
     bool Acquire();
     void Release();
   protected:     
