@@ -6,7 +6,7 @@ class Motion {
     void Start();
     void Reset();
     void DoCycle(float yaw); 
-    void SetMotors(int8_t dp1, int8_t dp2);
+    void SetMotors(int16_t dp1, int16_t dp2);
     void Move(int16_t tspeed);
     void Steer(int16_t angle);
     void MoveBearing(int16_t angle);

@@ -238,12 +238,16 @@ void Motion::SetPowerRotate(int16_t dir, int16_t *p) {
 }
 
 
-void Motion::SetMotors(int8_t dp1, int8_t dp2) // in %%
+void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
 {
   if(!bReady) return;
   //xLogger.vAddLogMsg("SETM:", dp1, dp2, 0);
+  if(dp1<-100) dp1=-100; 
+  if(dp1>100) dp1=100;
+  if(dp2<-100) dp2=-100; 
+  if(dp2>100) dp2=100;
   if(pxMotor->Acquire()) {
-    pxMotor->SetMotors(dp1, dp2);     
+    pxMotor->SetMotors((int8_t)dp1, (int8_t)dp2);     
     pxMotor->Release();
   }
 }
