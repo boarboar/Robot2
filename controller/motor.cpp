@@ -108,7 +108,7 @@ void Motor::SetMotors(int8_t dp1, int8_t dp2) {
        m[i].dir=d[i]; 
        m[i].power=p[i];
        Low_Drive(i); 
-       xLogger.vAddLogMsg("M:", i, d[i], p[i]);
+       //xLogger.vAddLogMsg("M:", i, d[i], p[i]);
      }
 
   }      

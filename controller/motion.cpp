@@ -10,9 +10,12 @@ const int16_t bear_pid_gain_d=120;
 const int16_t bear_pid_gain_i=4;
 const int16_t bear_pid_gain_div=10;
 const int16_t bear_pid_limit_i=100;
-const int M_POW_MIN=30; 
-const int M_POW_MAX=200;
-const int M_POW_NORM=100;
+//const int M_POW_MIN=30; 
+//const int M_POW_MAX=200;
+//const int M_POW_NORM=100;
+const int M_POW_MIN=20; 
+const int M_POW_MAX=100;
+const int M_POW_NORM=50;
 const int M_SPEED_NORM=200;
 
 void Motion::Init(Motor *m) {
