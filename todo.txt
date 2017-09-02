@@ -1,0 +1,4 @@
+1. Enc counting is OK, bit reported D is about tvice wrong and CRD completely wrong
+2. Back move command not alvays execed (fwd is alvays ok)
+3/ rotation in wrong direction after 3d repet in same direction
+4 pid fomula is ok for 100 ms but osc for 50 ms (dt is not accountted)
