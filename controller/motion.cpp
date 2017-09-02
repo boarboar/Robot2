@@ -134,7 +134,7 @@ void Motion::DoCycle(float yaw)
       // maybe a better idea would be to make limits proportional to the target?
       }
       if(iTargSpeed){
-        xLogger.vAddLogMsg("MV YTB,P*:", (int16_t)(yaw*180.0f/PI), iTargBearing, cur_pow[0], cur_pow[1]);
+        //xLogger.vAddLogMsg("MV YTB,P*:", (int16_t)(yaw*180.0f/PI), iTargBearing, cur_pow[0], cur_pow[1]);
         SetPowerStraight(iTargSpeed, cur_pow);       
       }
       else {

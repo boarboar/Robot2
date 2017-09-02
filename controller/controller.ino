@@ -200,8 +200,8 @@ static void vSensorTask(void *pvParameters) {
 static void vMotionTask(void *pvParameters) {
     xLogger.vAddLogMsg("Motion Task started.");    
     for (;;) { 
-      //vTaskDelay(100); // should be less
-      vTaskDelay(1000); // should be less, just for tests
+      vTaskDelay(100); 
+      //vTaskDelay(1000); // should be less, just for tests
       float yaw=0;
       if(MpuDrv::Mpu.Acquire()) {
         MpuDrv::Mpu.process();           
