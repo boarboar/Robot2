@@ -68,7 +68,7 @@ void Motion::DoCycle(float yaw)
   pxMotor->DoCycle();
   if(!bReady) return;
   fCurrYaw = yaw;
-  //uint32_t dt=xTaskGetTickCount()-xRunTime;
+  uint32_t dt=(xTaskGetTickCount()-xRunTime)*portTICK_PERIOD_MS;
   xRunTime=xTaskGetTickCount(); 
   if(pxMotor->Acquire()) {      
     pxMotor->GetEncDist(NULL, lAdvance);
@@ -91,10 +91,14 @@ void Motion::DoCycle(float yaw)
       while(err_bearing_p<-180) err_bearing_p+=360;   
 
       if(iTargSpeed) { // straight 
-        if(iTargSpeed<0) err_bearing_p=-err_bearing_p;               
-        err_bearing_i=err_bearing_i+err_bearing_p;
+        //if(iTargSpeed<0) err_bearing_p=-err_bearing_p;               
+        //err_bearing_i=err_bearing_i+err_bearing_p;
         // note: it should rather be +err_bearing_p*dt; 
         // or if normed to 100ms: err_bearing_i/100;
+        
+        if(iTargSpeed<0) err_bearing_p=-(int32_t)err_bearing_p*dt/100;               
+        err_bearing_i=err_bearing_i+(int32_t)err_bearing_p*dt/100;
+             
         if(err_bearing_i>bear_pid_limit_i) err_bearing_i=bear_pid_limit_i;
         if(err_bearing_i<-bear_pid_limit_i) err_bearing_i=-bear_pid_limit_i;      
         //if(run_dist>=100) //100mm
@@ -114,6 +118,9 @@ void Motion::DoCycle(float yaw)
       else if(err_bearing_d<-180) err_bearing_d+=360;
       // note: it should rather be (err_bearing_p-err_bearing_p_0)/dt; 
       // or if normed to 100ms: (int32_t)(err_bearing_p-err_bearing_p_0)*100/dt;
+      
+      // renorm:
+      err_bearing_d=(int32_t)err_bearing_d*100/dt;
         
       err_bearing_p_0=err_bearing_p;
       // use 32 bit math?
@@ -216,6 +223,8 @@ void Motion::StartRotate(int16_t tspeed) {
     iTargRot=-tspeed;
     //Serial.println(F("Start ROT <<")); 
     }
+
+  xLogger.vAddLogMsg("R TBYR:", iTargBearing, (int16_t)(fCurrYaw*180.0/PI), iTargRot);
   
   err_bearing_p_0=-a;     
   if(err_bearing_p_0<0) err_bearing_p_0=-err_bearing_p_0; 
@@ -263,11 +272,11 @@ void Motion::GetAdvance(uint32_t *dst_dist)
 
 void Motion::GetCrdCm(int16_t *crd) 
 {
-   crd[0]=(int16_t)fCrd[0];
-   crd[1]=(int16_t)fCrd[1];
+   crd[0]=(int16_t)(fCrd[0]/10.0f);
+   crd[1]=(int16_t)(fCrd[1]/10.0f);
 }
 
 int16_t Motion::GetAdvanceCm() {
-  return (int16_t)((lAdvance[0]+lAdvance[1])/10);
+  return (int16_t)((lAdvance[0]+lAdvance[1])/20);
 }
 
