@@ -1,4 +1,14 @@
-1. Enc counting is OK, bit reported D is about tvice wrong and CRD completely wrong- TEST
+1. Enc counting is OK, bit reported D is about tvice wrong and CRD completely wrong- TEST - seems that back as not accounted as -`1
 2. Back move command not alvays execed (fwd is alvays ok) - LOG
-3/ rotation in wrong direction after 3d repet in same direction - LOG
-4 pid fomula is ok for 100 ms but osc for 50 ms (dt is not accountted) - TEST
+3/ rotation in wrong direction after 3d repet in same direction - LOG - logged
+4 pid fomula is ok for 100 ms but osc for 50 ms (dt is not accountted) - TEST - sgtrange, use parameter input
+
+122 : ROT A::90
+123 : R TBYR::97,7,200
+124 : R TBYR::97,93,0
+125 : S[1-3]:-2,-2,-2
+126 : S[7-9]:-2,-2,-2
+127 : Y,E*:94,1631,1625
+128 : ROT A::90
+129 : R TBYR::3,93,-200
+130 : MV TVB,P*::0,55,0,0
