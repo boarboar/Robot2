@@ -210,15 +210,15 @@ void Motion::MoveBearing(int16_t angle)
 void Motion::AdjustTargBearing(int16_t s, bool absolute) {
   iTargBearing = s;
   if(absolute) iTargBearing+=fCurrYaw*180.0/PI;
-  if(iTargBearing>180) iTargBearing-=180;
-  else if(iTargBearing<-180) iTargBearing+=180;    
+  if(iTargBearing>180) iTargBearing-=360;
+  else if(iTargBearing<-180) iTargBearing+=360;    
 }
 
 
 void Motion::StartRotate(int16_t tspeed) {
   int16_t a = iTargBearing-fCurrYaw*180.0/PI;
-  if(a>180) a-=180;
-  else if(a<-180) a+=180;    
+  if(a>180) a-=360;
+  else if(a<-180) a+=360;    
   
   if(a>1) { 
     iTargRot=tspeed;  
