@@ -69,7 +69,7 @@
 #define US_IN_2_PIN   PB14
 #define US_OUT_2_PIN  PB15
 
-#define TASK_DELAY_MOTION 100
+#define TASK_DELAY_MOTION 50
 
 CommManager xCommMgr;
 ComLogger xLogger;
