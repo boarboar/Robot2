@@ -38,7 +38,7 @@ void Motion::Release() {
 
 void Motion::Start() {
   bReady=true;
-  xRunTime=xTaskGetTickCount();     
+  //xRunTime=xTaskGetTickCount();     
   xLogger.vAddLogMsg("Motion module ready");      
 }
 
@@ -52,6 +52,7 @@ void Motion::Reset() {
     lAdvance0[i]=0;
     fCrd[i]=0.0f;
   }
+  lAdvanceTot=0;
   err_bearing_p_0=0;
   err_bearing_i=0;
   base_pow=0;
@@ -62,19 +63,23 @@ bool Motion::HasTask() {
   return iTargSpeed || iTargRot;
 }
 
-void Motion::DoCycle(float yaw) 
+void Motion::DoCycle(float yaw, int16_t dt) 
 {
   float mov; //mm
+  int8_t dir[2];
   pxMotor->DoCycle();
   if(!bReady) return;
   fCurrYaw = yaw;
-  uint32_t dt=(xTaskGetTickCount()-xRunTime)*portTICK_PERIOD_MS;
-  xRunTime=xTaskGetTickCount(); 
+  //uint32_t dt=(xTaskGetTickCount()-xRunTime)*portTICK_PERIOD_MS;
+  //xRunTime=xTaskGetTickCount(); 
   if(pxMotor->Acquire()) {      
-    pxMotor->GetEncDist(NULL, lAdvance);
+    //pxMotor->GetEncDistMM(NULL, lAdvance);
+    pxMotor->GetDirDistMM(lAdvance, dir);
     pxMotor->Release();
   }
-  mov=((lAdvance[0]-lAdvance0[0])+(lAdvance[1]-lAdvance0[1]))*0.5f;
+  // Advance - direction!!!!
+  mov=((lAdvance[0]-lAdvance0[0])*dir[0]+(lAdvance[1]-lAdvance0[1])*dir[1])*0.5f;
+  lAdvanceTot+=abs((int32_t)mov);
   lAdvance0[0]=lAdvance[0];
   lAdvance0[1]=lAdvance[1];
   // integrate
@@ -91,12 +96,12 @@ void Motion::DoCycle(float yaw)
       while(err_bearing_p<-180) err_bearing_p+=360;   
 
       if(iTargSpeed) { // straight 
-        //if(iTargSpeed<0) err_bearing_p=-err_bearing_p;               
+        if(iTargSpeed<0) err_bearing_p=-err_bearing_p;               
+        
         //err_bearing_i=err_bearing_i+err_bearing_p;
         // note: it should rather be +err_bearing_p*dt; 
         // or if normed to 100ms: err_bearing_i/100;
-        
-        if(iTargSpeed<0) err_bearing_p=-(int32_t)err_bearing_p*dt/100;               
+                          
         err_bearing_i=err_bearing_i+(int32_t)err_bearing_p*dt/100;
              
         if(err_bearing_i>bear_pid_limit_i) err_bearing_i=bear_pid_limit_i;
@@ -264,11 +269,13 @@ void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
   }
 }
 
+/*
 void Motion::GetAdvance(uint32_t *dst_dist) 
 {
    dst_dist[0]=lAdvance[0];
    dst_dist[1]=lAdvance[1];        
 }
+*/
 
 void Motion::GetCrdCm(int16_t *crd) 
 {
@@ -277,6 +284,7 @@ void Motion::GetCrdCm(int16_t *crd)
 }
 
 int16_t Motion::GetAdvanceCm() {
-  return (int16_t)((lAdvance[0]+lAdvance[1])/20);
+  //return (int16_t)((lAdvance[0]+lAdvance[1])/20);
+  return (int16_t)(lAdvanceTot/10);
 }
 

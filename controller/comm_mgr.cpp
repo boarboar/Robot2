@@ -126,7 +126,7 @@ boolean CommManager::ProcessCommand()
         break;  
       case REG_ENC:
         vcnt=2;
-        if (xMotor.GetEncDist((uint16_t*)val, NULL)) { //BAD !!!
+        if (xMotor.GetEncDistMM((uint16_t*)val, NULL)) { //BAD !!!
           ;
         }
         break;    

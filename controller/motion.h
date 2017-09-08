@@ -5,12 +5,12 @@ class Motion {
     void Init(Motor *m);    
     void Start();
     void Reset();
-    void DoCycle(float yaw); 
+    void DoCycle(float yaw, int16_t dt); 
     void SetMotors(int16_t dp1, int16_t dp2);
     void Move(int16_t tspeed);
     void Steer(int16_t angle);
     void MoveBearing(int16_t angle);
-    void GetAdvance(uint32_t *dst_dist);
+    //void GetAdvance(uint32_t *dst_dist);
     void GetCrdCm(int16_t *crd);
     int16_t GetAdvanceCm();
     bool HasTask();
@@ -23,7 +23,7 @@ class Motion {
     void SetPowerRotate(int16_t dir, int16_t *p);
 
     xSemaphoreHandle xMotionFree;
-    TickType_t xRunTime;
+    //TickType_t xRunTime;
     Motor *pxMotor;
     bool bReady;
     int16_t iTargBearing; // in grads
@@ -34,6 +34,7 @@ class Motion {
     int16_t delta_pow;
     int16_t base_pow;
     uint32_t lAdvance0[2], lAdvance[2]; // in mm
+    uint32_t lAdvanceTot;
     float fCrd[2];
     float fCurrYaw;    
 };

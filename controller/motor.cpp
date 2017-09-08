@@ -115,7 +115,7 @@ void Motor::SetMotors(int8_t dp1, int8_t dp2) {
   
 }
 
-bool Motor::GetEncDist(uint16_t *dst_enc, uint32_t *dst_dist) {  
+bool Motor::GetEncDistMM(uint16_t *dst_enc, uint32_t *dst_dist) {  
   for(int i=0; i<2; i++) {
      if(dst_enc) dst_enc[i]=m[i].enc_accum;
      if(dst_dist) dst_dist[i]= (CHGST_TO_MM(m[i].enc_accum));
@@ -123,6 +123,13 @@ bool Motor::GetEncDist(uint16_t *dst_enc, uint32_t *dst_dist) {
   return true;
 }
 
+bool Motor::GetDirDistMM(uint32_t *dst_dist, int8_t *dir) {
+  for(int i=0; i<2; i++) {     
+     dst_dist[i] = (CHGST_TO_MM(m[i].enc_accum));
+     dir[i]=m[i].dir;
+    }
+  return true;
+}
 
 void Motor::encInterrupt(uint16_t i)  { 
   static TickType_t xLastWakeTime[2];

@@ -69,6 +69,7 @@
 #define US_IN_2_PIN   PB14
 #define US_OUT_2_PIN  PB15
 
+#define TASK_DELAY_MOTION 100
 
 CommManager xCommMgr;
 ComLogger xLogger;
@@ -125,7 +126,7 @@ static void vLazyTask(void *pvParameters) {
           MpuDrv::Mpu.Release();
         } 
         MpuDrv::Mpu.flushAlarms();   
-
+      /*
         if(!hasMotionTask) {
           // if idle, do test output
           if(imu_status==MpuDrv::ST_READY) {  
@@ -147,12 +148,13 @@ static void vLazyTask(void *pvParameters) {
             //xLogger.vAddLogMsg("Y", (int16_t)yaw*180.0/PI);    
           }
           if (xMotor.Acquire()) { 
-            xMotor.GetEncDist(enc, NULL);
+            xMotor.GetEncDistMM(enc, NULL);
             xMotor.Release();
             //xLogger.vAddLogMsg("E1", enc[0], "E2", enc[1]);           
           }
          xLogger.vAddLogMsg("Y,E*", (int16_t)(yaw*180.0/PI), enc[0], enc[1]);             
          }
+       */
        
        if(needReset) {
           xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_SYS, 101);
@@ -200,7 +202,7 @@ static void vSensorTask(void *pvParameters) {
 static void vMotionTask(void *pvParameters) {
     xLogger.vAddLogMsg("Motion Task started.");    
     for (;;) { 
-      vTaskDelay(100); 
+      vTaskDelay(TASK_DELAY_MOTION); 
       //vTaskDelay(1000); // should be less, just for tests
       float yaw=0;
       if(MpuDrv::Mpu.Acquire()) {
@@ -210,7 +212,7 @@ static void vMotionTask(void *pvParameters) {
       }
       else continue;
       if(xMotion.Acquire()) {
-         xMotion.DoCycle(yaw);
+         xMotion.DoCycle(yaw, TASK_DELAY_MOTION);
          xMotion.Release();
       } 
     }
