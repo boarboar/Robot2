@@ -13,9 +13,9 @@ const int16_t bear_pid_limit_i=100;
 //const int M_POW_MIN=30; 
 //const int M_POW_MAX=200;
 //const int M_POW_NORM=100;
-const int M_POW_MIN=20; 
+const int M_POW_MIN=30; 
 const int M_POW_MAX=100;
-const int M_POW_NORM=50;
+const int M_POW_NORM=60;
 const int M_SPEED_NORM=200;
 
 void Motion::Init(Motor *m) {
@@ -77,9 +77,10 @@ void Motion::DoCycle(float yaw, int16_t dt)
     pxMotor->GetDirDistMM(lAdvance, dir);
     pxMotor->Release();
   }
-  // Advance - direction!!!!
-  mov=((lAdvance[0]-lAdvance0[0])*dir[0]+(lAdvance[1]-lAdvance0[1])*dir[1])*0.5f;
-  lAdvanceTot+=abs((int32_t)mov);
+  // Advance - with direction
+  mov=((int32_t)((lAdvance[0]-lAdvance0[0]))*dir[0]+(int32_t)((lAdvance[1]-lAdvance0[1]))*dir[1])*0.5f;
+  //lAdvanceTot+=abs((int32_t)mov);
+  lAdvanceTot+=(int32_t)mov;
   lAdvance0[0]=lAdvance[0];
   lAdvance0[1]=lAdvance[1];
   // integrate
