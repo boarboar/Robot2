@@ -52,7 +52,8 @@ void Motion::Reset() {
     lAdvance0[i]=0;
     fCrd[i]=0.0f;
   }
-  lAdvanceTot=0;
+  //lAdvanceTot=0;
+  fAdvanceTot=0.0f;
   err_bearing_p_0=0;
   err_bearing_i=0;
   base_pow=0;
@@ -79,8 +80,8 @@ void Motion::DoCycle(float yaw, int16_t dt)
   }
   // Advance - with direction
   mov=((int32_t)((lAdvance[0]-lAdvance0[0]))*dir[0]+(int32_t)((lAdvance[1]-lAdvance0[1]))*dir[1])*0.5f;
-  //lAdvanceTot+=abs((int32_t)mov);
-  lAdvanceTot+=(int32_t)mov;
+  //lAdvanceTot+=(int32_t)mov;
+  fAdvanceTot+=mov;
   lAdvance0[0]=lAdvance[0];
   lAdvance0[1]=lAdvance[1];
   // integrate
@@ -284,8 +285,8 @@ void Motion::GetCrdCm(int16_t *crd)
    crd[1]=(int16_t)(fCrd[1]/10.0f);
 }
 
-int16_t Motion::GetAdvanceCm() {
-  //return (int16_t)((lAdvance[0]+lAdvance[1])/20);
-  return (int16_t)(lAdvanceTot/10);
+int16_t Motion::GetAdvanceCm() {  
+  //return (int16_t)(lAdvanceTot/10);
+  return (int16_t)(fAdvanceTot/10.0f);
 }
 
