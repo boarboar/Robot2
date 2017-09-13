@@ -69,7 +69,7 @@
 #define US_IN_2_PIN   PB14
 #define US_OUT_2_PIN  PB15
 
-#define TASK_DELAY_MOTION 50
+#define TASK_DELAY_MOTION 25
 
 CommManager xCommMgr;
 ComLogger xLogger;
@@ -203,7 +203,6 @@ static void vMotionTask(void *pvParameters) {
     xLogger.vAddLogMsg("Motion Task started.");    
     for (;;) { 
       vTaskDelay(TASK_DELAY_MOTION); 
-      //vTaskDelay(1000); // should be less, just for tests
       float yaw=0;
       if(MpuDrv::Mpu.Acquire()) {
         MpuDrv::Mpu.process();           
