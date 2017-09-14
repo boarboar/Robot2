@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Users\\boar\\Documents\\Arduino\\hardware\\Arduino_STM32-master\\STM32F1\\cores\\maple"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": false,
+                "path": [
+                    "C:\\Users\\boar\\Documents\\Arduino\\hardware\\Arduino_STM32-master\\STM32F1\\cores\\maple",
+                    "${workspaceRoot}"
+                ]
+            },
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 3
+}
