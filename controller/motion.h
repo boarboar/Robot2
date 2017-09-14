@@ -34,7 +34,6 @@ class Motion {
     int16_t delta_pow;
     int16_t base_pow;
     uint32_t lAdvance0[2], lAdvance[2]; // in mm
-    //uint32_t lAdvanceTot;
     float fAdvanceTot;
     float fCrd[2];
     float fCurrYaw;    

@@ -16,7 +16,7 @@ const int M_POW_MAX=100;
 const int M_POW_NORM=60;
 const int M_SPEED_NORM=200;
 
-const int M_ROT_TARG_DEV=3;  //rotation target deviation
+const int M_ROT_TARG_DEV=1;  //rotation target deviation
 
 void Motion::Init(Motor *m) {
   vSemaphoreCreateBinary(xMotionFree);        
@@ -73,7 +73,6 @@ void Motion::DoCycle(float yaw, int16_t dt)
   //uint32_t dt=(xTaskGetTickCount()-xRunTime)*portTICK_PERIOD_MS;
   //xRunTime=xTaskGetTickCount(); 
   if(pxMotor->Acquire()) {      
-    //pxMotor->GetEncDistMM(NULL, lAdvance);
     pxMotor->GetDirDistMM(lAdvance, dir);
     pxMotor->Release();
   }
