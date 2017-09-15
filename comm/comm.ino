@@ -17,13 +17,9 @@ const char* cfg_file = "/config.json";
 const int udp_port = 4444;
 const int CYCLE_TO = 5;
 //const int CYCLE_MED_TO = 50;
-const int CYCLE_MED_TO = 1000; // test only
+//const int CYCLE_MED_TO = 1000; // test only
+const int CYCLE_MED_TO = 200; 
 const int CYCLE_SLOW_TO = 2000;
-//const int MPU_SDA=0;
-//const int MPU_SDL=2;
-//const int MPU_INT=15;
-
-//const int PERIPH_UNIT_ID=4;
 
 uint32_t last_cycle;
 uint32_t last_med_cycle;
@@ -97,7 +93,6 @@ void setup() {
 
 void loop() {
   if(cmd.connected()) {
-    //uint32_t m1=millis();
     if (cmd.read()) {
       doCycle(); yield();
       cmd.doCmd();
@@ -113,13 +108,11 @@ void doCycle() {
   uint16_t dt=t-last_cycle;
  
    // Do fast cycle
-
   if(dt < CYCLE_TO) return;
   last_cycle = t;
- 
   // nothing to do...
   
-  // Do medium cycle // (50ms)
+  // Do medium cycle // (50ms???)
   dt=t-last_med_cycle;
   if(dt < CYCLE_MED_TO) return;
   last_med_cycle = t;
