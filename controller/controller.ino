@@ -190,7 +190,6 @@ static void vIMU_Task(void *pvParameters) {
 }
 
 static void vSensorTask(void *pvParameters) {
-    //xSensor.Start();
     xLogger.vAddLogMsg("Sensor Task started.");
     for (;;) {
         vTaskDelay(10);
@@ -219,13 +218,13 @@ static void vMotionTask(void *pvParameters) {
 
 
 void setup() {
-  
     digitalWrite(BOARD_LED_PIN, LOW);
     pinMode(BOARD_LED_PIN, OUTPUT);
     
     delay(5000);
     //disableDebugPorts(); // disable JTAG debug, enable PB3,4 for usage
-      
+    // NEVER do this!!!
+    
     Serial.begin(115200); 
     Serial.print("Tick = ");
     Serial.println(portTICK_PERIOD_MS);

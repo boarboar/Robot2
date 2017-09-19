@@ -33,8 +33,9 @@ class CommManager {
     QueueHandle_t xAlarmQueue;
     xSemaphoreHandle xAlarmFree;
   
-    enum Regs {REG_None=0, REG_ID=1, REG_STATUS=2, REG_SENS=3, REG_ALL=4, REG_MOTOR_POWER=5, REG_MOVE=6, REG_STEER=7, REG_MOVE_BEAR=8, REG_ALARM=9, REG_ENC=10, 
-      REG_RESET=100, REG_N_SENS=101};
+    enum Regs {REG_None=0, REG_ID=1, REG_STATUS=2, REG_SENS=3, REG_ALL=4, 
+      REG_MOTOR_POWER=5, REG_MOVE=6, REG_STEER=7, REG_MOVE_BEAR=8, REG_ALARM=9, REG_ENC=10, 
+      REG_RESET=100, REG_N_SENS=101, REG_CFG=102};
     uint8_t CRC();
     int16_t ReadInt() ;        
     char buf[CM_BUF_SIZE];

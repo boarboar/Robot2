@@ -269,6 +269,13 @@ boolean CommManager::ProcessCommand()
           }
         }
         break;             
+    case REG_CFG:
+        if(vcnt<2) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
+        // cfg setting - todo
+        // [0] - param to set
+        //[1..] - values
+        xLogger.vAddLogMsg("CFG P", val[0], "V", val[1]);
+        break;    
     default:;        
   }
 

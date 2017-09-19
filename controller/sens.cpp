@@ -6,6 +6,7 @@
 //#define SERVO_ZERO_SHIFT    3
 #define SERVO_ZERO_SHIFT    10
 #define SERVO_CORR    2
+#define SERVO_WAIT    1000 // for test, should be less
 /*
 // actual USENS_DIVISOR constant should be 58.138, but we make correction for angle
 #define USENS_DIVISOR 57
@@ -35,8 +36,6 @@ void Sensor::echoInterrupt(uint16_t i) {
   static uint16_t v;
   
   if(xTaskToNotify == NULL || wait_sens!=i) return;
-  
-  //BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   xHigherPriorityTaskWoken = pdFALSE;
   v=digitalRead(this->sens_in_pin[i]);
   if(v==HIGH) { //raise = start echo
@@ -50,7 +49,6 @@ void Sensor::echoInterrupt(uint16_t i) {
       /* Notify the task that the transmission is complete. */
       vTaskNotifyGiveFromISR( xTaskToNotify, &xHigherPriorityTaskWoken );
       /* There are no transmissions in progress, so no tasks to notify. */
-      //xTaskToNotify = NULL;
     }
     xTaskToNotify = NULL;
   }
@@ -129,8 +127,7 @@ Servo_p   \  | 0  | 1  |
 */
 
 void Sensor::DoCycle() {
-    if(!running) return;
-      
+    if(!running) return;    
     if((sservo_step>0 && sservo_pos>=SERVO_NSTEPS) || (sservo_step<0 && sservo_pos<=-SERVO_NSTEPS)) sservo_step=-sservo_step;
     sservo_pos+=sservo_step;
     int16_t sservo_angle=90-SERVO_ZERO_SHIFT+sservo_pos*SERVO_STEP+abs(sservo_pos)*SERVO_CORR;
@@ -138,7 +135,7 @@ void Sensor::DoCycle() {
     taskENTER_CRITICAL();
     xServo.write(sservo_angle);
     taskEXIT_CRITICAL();
-    vTaskDelay(400);
+    vTaskDelay(SERVO_WAIT);
     for(uint16_t sens_step=0; sens_step<2; sens_step++) {  
       int8_t current_sens=-sservo_pos+SERVO_NSTEPS+sens_step*(SERVO_NSTEPS*2+1); 
       int16_t pin_in=sens_in_pin[sens_step];
@@ -155,10 +152,7 @@ void Sensor::DoCycle() {
       digitalWrite(pin_out, LOW);
       taskEXIT_CRITICAL();
       uint32_t d=0;
-      //uint32_t d=pulseIn(pin_in, HIGH, 30000);
-      //taskEXIT_CRITICAL();
-      //vTaskDelay(1);
-
+   
       if(digitalRead(pin_in)==HIGH) {
         // not completed
         xLogger.vAddLogMsg("SENC UNC==", sens_step); 
@@ -176,7 +170,6 @@ void Sensor::DoCycle() {
         else value[current_sens] = -2;
         Release();  
       }
-      //vTaskDelay(50);
       vTaskDelay(1);
     }
 }
@@ -188,7 +181,6 @@ int16_t Sensor::GetNMeas() {
 int16_t Sensor::Get() {
   return value[0];
 }
-
 
 void Sensor::Get(int16_t *v, int16_t n) {
   if(n>M_SENS_N) n=M_SENS_N;
