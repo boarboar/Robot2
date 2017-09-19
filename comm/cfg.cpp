@@ -97,21 +97,27 @@ int16_t CfgDrv::store(const char* fname) {
       }
       case CFG_PIDS_1:
       case CFG_PIDS_2:{
-        struct pid_params *p=NULL;
+        //struct pid_params *p=NULL;
+        int16_t *p=NULL;
         if(i==CFG_PIDS_1) {
           json["P"]=1;
-          p=&bear_pid;          
+          //p=&bear_pid;          
+          p=bear_pid;          
         } else {
           json["P"]=2;
-          p=&speed_pid;
+          //p=&speed_pid;
+          p=speed_pid;
         }
         
         JsonArray& par = json.createNestedArray("PA");
+        /*
         par.add(p->gain_p);
         par.add(p->gain_d);
         par.add(p->gain_i);
         par.add(p->gain_div);
         par.add(p->limit_i); 
+        */
+        for (int i=0; i<CFG_PID_NP; i++) par.add(p[i]);
         break;  
       }
       default:;    
@@ -165,6 +171,7 @@ bool CfgDrv::setSysLog(JsonObject& root) {
 
 bool CfgDrv::setPidParams(JsonObject& json) {
   JsonArray& par = json["PA"].asArray();
+  /*
   struct pid_params *p=NULL;
   if(json["P"]==1) p=&bear_pid;
   else  if(json["P"]==2) p=&speed_pid;
@@ -174,6 +181,13 @@ bool CfgDrv::setPidParams(JsonObject& json) {
   p->gain_i=par[2];
   p->gain_div=par[3];
   p->limit_i=par[4];
+  */
+  int16_t *p=NULL;
+  if(json["P"]==1) p=bear_pid;
+  else  if(json["P"]==2) p=speed_pid;
+  if(p==NULL) return false;
+  for (int i=0; i<CFG_PID_NP; i++) p[i]=par[i];
+
   if(json["S"]==1) {
     dirty=true;
     last_chg=millis();
@@ -182,3 +196,15 @@ bool CfgDrv::setPidParams(JsonObject& json) {
   return true;  
 }
 
+void CfgDrv::printCtrlParams() {
+  int16_t *p=NULL;
+  Serial.print(F("PID B: "));
+  p=bear_pid;
+  for (int i=0; i<CFG_PID_NP; i++) { Serial.print(p[i]); Serial.print(F(" ")); }
+  Serial.println();
+  Serial.print(F("PID S: "));
+  p=speed_pid;
+  for (int i=0; i<CFG_PID_NP; i++) { Serial.print(p[i]); Serial.print(F(" ")); }
+  Serial.println();
+}
+  

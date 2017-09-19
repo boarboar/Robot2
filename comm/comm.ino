@@ -79,6 +79,8 @@ void setup() {
  
   yield();
 
+  CfgDrv::Cfg.printCtrlParams();
+
   if(Controller::ControllerProc.init()) { 
     Serial.print(F("Ctrl Ready! Sensors: "));
     Serial.println(Controller::ControllerProc.getNumSensors());        
