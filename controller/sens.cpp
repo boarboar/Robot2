@@ -3,18 +3,20 @@
 #include "log.h"
 
 #define SERVO_STEP    36
-//#define SERVO_ZERO_SHIFT    3
-#define SERVO_ZERO_SHIFT    10
-#define SERVO_CORR    2
-#define SERVO_WAIT    1000 // for test, should be less
+#define SERVO_ZERO_SHIFT    -3
+//#define SERVO_ZERO_SHIFT    10
+//#define SERVO_CORR    2
+#define SERVO_CORR    0
+#define SERVO_WAIT    150
+//#define SERVO_WAIT    2000 //test
+
+#define USENS_BASE    7
 /*
 // actual USENS_DIVISOR constant should be 58.138, but we make correction for angle
 #define USENS_DIVISOR 57
-#define USENS_BASE    3
 */
 
 #define USENS_DIVISOR 58
-#define USENS_BASE    0
 #define PING_OVERHEAD 5
 #define PING_WAIT_MS  40 
 
