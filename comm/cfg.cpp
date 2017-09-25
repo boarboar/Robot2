@@ -97,26 +97,16 @@ int16_t CfgDrv::store(const char* fname) {
       }
       case CFG_PIDS_1:
       case CFG_PIDS_2:{
-        //struct pid_params *p=NULL;
         int16_t *p=NULL;
         if(i==CFG_PIDS_1) {
           json["P"]=1;
-          //p=&bear_pid;          
           p=bear_pid;          
         } else {
           json["P"]=2;
-          //p=&speed_pid;
           p=speed_pid;
         }
         
         JsonArray& par = json.createNestedArray("PA");
-        /*
-        par.add(p->gain_p);
-        par.add(p->gain_d);
-        par.add(p->gain_i);
-        par.add(p->gain_div);
-        par.add(p->limit_i); 
-        */
         for (int i=0; i<CFG_PID_NP; i++) par.add(p[i]);
         break;  
       }
@@ -139,21 +129,10 @@ bool CfgDrv::needToStore() {
 }
 
 bool CfgDrv::setSysLog(JsonObject& root) {
-  //uint8_t on = root["ON"] ? 1 : 0;
   uint8_t on = root["ON"];
   long port = root["PORT"];
   const char* addr = root["ADDR"];
   IPAddress newaddr;
-  /*
-  if(!on) { 
-    if(!log_on) return true;
-    Serial.println(F("SET_SYSL OFF")); 
-    log_on=0;
-    dirty=true; 
-    last_chg=millis();
-    return true;
-  } 
-  */ 
   if(on && !(port && addr && *addr && WiFi.hostByName(addr, newaddr))) return false;    
   if(log_addr==newaddr && log_port==port && log_on==on) return true; // nothing to change
   log_addr=newaddr;
@@ -171,17 +150,6 @@ bool CfgDrv::setSysLog(JsonObject& root) {
 
 bool CfgDrv::setPidParams(JsonObject& json) {
   JsonArray& par = json["PA"].asArray();
-  /*
-  struct pid_params *p=NULL;
-  if(json["P"]==1) p=&bear_pid;
-  else  if(json["P"]==2) p=&speed_pid;
-  if(p==NULL) return false;
-  p->gain_p=par[0];
-  p->gain_d=par[1];
-  p->gain_i=par[2];
-  p->gain_div=par[3];
-  p->limit_i=par[4];
-  */
   int16_t *p=NULL;
   if(json["P"]==1) p=bear_pid;
   else  if(json["P"]==2) p=speed_pid;
