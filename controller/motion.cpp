@@ -23,6 +23,8 @@ void Motion::Init(Motor *m) {
   bReady = false;      
   pxMotor=m;
   fCurrYaw = 0.0f;
+  fSinY = 0.0f; fCosY = 1.0f; 
+
   Reset();
   Serial.println("Motion init OK");
 }
@@ -69,7 +71,9 @@ void Motion::DoCycle(float yaw, int16_t dt)
   int8_t dir[2];
   pxMotor->DoCycle();
   if(!bReady) return;
+  float f_dyaw=yaw-fCurrYaw;
   fCurrYaw = yaw;
+  
   //uint32_t dt=(xTaskGetTickCount()-xRunTime)*portTICK_PERIOD_MS;
   //xRunTime=xTaskGetTickCount(); 
   if(pxMotor->Acquire()) {      
@@ -82,9 +86,16 @@ void Motion::DoCycle(float yaw, int16_t dt)
   lAdvance0[0]=lAdvance[0];
   lAdvance0[1]=lAdvance[1];
   // integrate
-  fCrd[0]+=mov*sin(yaw);
-  fCrd[1]+=mov*cos(yaw);
 
+  fSinY=fSinY+fCosY*f_dyaw;
+  fCosY=fCosY-fSinY*f_dyaw;
+
+  //fCrd[0]+=mov*sin(yaw);
+  //fCrd[1]+=mov*cos(yaw);
+
+  fCrd[0]+=mov*fSinY;
+  fCrd[1]+=mov*fCosY;
+  
   if(iTargSpeed || iTargRot) 
   { // movement
     if(lPIDCnt>0) 
@@ -248,9 +259,9 @@ void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
   if(!bReady) return;
   //xLogger.vAddLogMsg("SETM:", dp1, dp2, 0);
   if(dp1<-100) dp1=-100; 
-  if(dp1>100) dp1=100;
+  else if(dp1>100) dp1=100;
   if(dp2<-100) dp2=-100; 
-  if(dp2>100) dp2=100;
+  else if(dp2>100) dp2=100;
   if(pxMotor->Acquire()) {
     pxMotor->SetMotors((int8_t)dp1, (int8_t)dp2);     
     pxMotor->Release();

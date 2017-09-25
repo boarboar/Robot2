@@ -37,5 +37,6 @@ class Motion {
     float fAdvanceTot;
     float fCrd[2];
     float fCurrYaw;    
+    float fSinY, fCosY;
 };
 
