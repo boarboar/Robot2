@@ -133,7 +133,7 @@ void Sensor::DoCycle() {
     if((sservo_step>0 && sservo_pos>=SERVO_NSTEPS) || (sservo_step<0 && sservo_pos<=-SERVO_NSTEPS)) sservo_step=-sservo_step;
     sservo_pos+=sservo_step;
     int16_t sservo_angle=90-SERVO_ZERO_SHIFT+sservo_pos*SERVO_STEP+abs(sservo_pos)*SERVO_CORR;
-    vTaskDelay(1);
+    //vTaskDelay(1);
     taskENTER_CRITICAL();
     xServo.write(sservo_angle);
     taskEXIT_CRITICAL();

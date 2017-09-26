@@ -192,7 +192,8 @@ static void vIMU_Task(void *pvParameters) {
 static void vSensorTask(void *pvParameters) {
     xLogger.vAddLogMsg("Sensor Task started.");
     for (;;) {
-        vTaskDelay(10);
+        //vTaskDelay(10);
+        vTaskDelay(1); // there is a huge servo wait delay inside of doCycle
         xSensor.DoCycle();     
     }
 }
