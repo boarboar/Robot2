@@ -141,7 +141,7 @@ int16_t MpuDrv::cycle(uint16_t /*dt*/) {
     // reset so we can continue cleanly
     mpu.resetFIFO();
     fifoCount=0;
-    //fail_cnt[MPU_FAIL_FIFOOVFL_IDX]++;  // overfloods with the alarms
+    fail_cnt[MPU_FAIL_FIFOOVFL_IDX]++;  // overfloods with the alarms
     return -2;
   } 
   // otherwise, check for DMP data ready interrupt (this should happen frequently)
@@ -169,7 +169,7 @@ int16_t MpuDrv::cycle(uint16_t /*dt*/) {
   if(fifoCount >0) { 
     mpu.resetFIFO();
     fifoCount=0;
-    //fail_cnt[MPU_FAIL_FIFOEXCESS_IDX]++; // overfloods with the alarms
+    fail_cnt[MPU_FAIL_FIFOEXCESS_IDX]++; // overfloods with the alarms
     return -3;
   }   
     
@@ -182,25 +182,15 @@ int16_t MpuDrv::cycle(uint16_t /*dt*/) {
     ad16[0]=aa16.x-aa16_0.x; ad16[1]=aa16.y-aa16_0.y; ad16[2]=aa16.z-aa16_0.z;                   
     for(i=0; i<4; i++) {e=q16[i]-q16_0[i]; if(e<0) e=-e; if(e>qe) qe=e;}
     for(i=0; i<3; i++) {e=ad16[i]; if(e<0) e=-e; if(e>ae) ae=e;}        
-        /*
-   Serial.println((millis()-start)/1000);
-   DbgPrintQInt16("\tQ16-0", q16_0);
-   DbgPrintQInt16("\tQ16-1", q16);
-   yield();
-   DbgPrintVectorInt16("\tAcc-0\t", &aa16_0);
-   DbgPrintVectorInt16("\tAcc-1\t", &aa16);
-   Serial.print(F("Q16 Err:\t")); Serial.print(qe); Serial.print(F("\tA16 Err:\t")); Serial.print(ae); 
-   Serial.print("\tCC:\t"); Serial.print(conv_count); Serial.print("\tT:\t"); Serial.println((millis()-start)/1000);
-        */
-   xLogger.vAddLogMsg("QE", qe, "AE", ae);  
-   xCommMgr.vAddAlarm(CommManager::CM_INFO, CommManager::CM_MODULE_IMU, MPU_EVENT_CONV_PROG, qe, ae);       
-   if(qe<QUAT_INIT_TOL && ae<ACC_INIT_TOL) {
+    xLogger.vAddLogMsg("QE", qe, "AE", ae);  
+    xCommMgr.vAddAlarm(CommManager::CM_INFO, CommManager::CM_MODULE_IMU, MPU_EVENT_CONV_PROG, qe, ae);       
+    if(qe<QUAT_INIT_TOL && ae<ACC_INIT_TOL) {
       conv_count++;
       //if((millis()-start)/1000 > INIT_PERIOD_MIN && conv_count>3) settled=true;             
       if((xTaskGetTickCount()-xStart)/1000L > INIT_PERIOD_MIN && conv_count>3) settled=true;             
     } else conv_count=0;  
-   //if((millis()-start)/1000 > INIT_PERIOD_MAX) {
-   if((xTaskGetTickCount()-xStart)/1000L > INIT_PERIOD_MAX) {
+    //if((millis()-start)/1000 > INIT_PERIOD_MAX) {
+    if((xTaskGetTickCount()-xStart)/1000L > INIT_PERIOD_MAX) {
       xLogger.vAddLogMsg("MPU Failed to converge");
       xCommMgr.vAddAlarm(CommManager::CM_EVENT, CommManager::CM_MODULE_IMU, MPU_FAIL_CONVTMO, -1); 
       settled=true;      
@@ -295,7 +285,7 @@ void MpuDrv::flushAlarms() {
   for(int i=0; i<MPU_FAIL_CNT_SZ; i++) {
     if(fail_cnt_buf[i]) {      
       xLogger.vAddLogMsg("MPF", i, (const char *)NULL, fail_cnt_buf[i]);
-      xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_IMU, MPU_FAIL_CYCLE+i, fail_cnt_buf[i]); 
+      //xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_IMU, MPU_FAIL_CYCLE+i, fail_cnt_buf[i]); 
     }
   }
 }
@@ -303,56 +293,8 @@ void MpuDrv::flushAlarms() {
 float MpuDrv::getYaw() { return ypr[0]; }
 
 void MpuDrv::getAll(float* ypr, float* af, float* vf) {        
-  /*
-  Quaternion q, q0;
-  VectorFloat gravity;    
-  mpu.dmpGetQuaternion(&q, q16);
-  mpu.dmpGetQuaternion(&q0, q16_0);
-  q0=q0.getConjugate();
-  q=q0.getProduct(q); // real quaternion (relative to base)
-  mpu.dmpGetGravity(&gravity, &q);
-  mpu.dmpGetYawPitchRoll(ypr, &q, &gravity); 
-  */
   ypr[0]=this->ypr[0]; ypr[1]=this->ypr[1]; ypr[2]=this->ypr[2];
   af[0]=a.x; af[1]=a.y; af[2]=a.z;
   vf[0]=v.x; vf[1]=v.y; vf[2]=v.z;
-/*
-  DbgPrintArr3Float("YPR", ypr);
-  yield();
-  DbgPrintArr3Float("V", vf);
-  */
 }  
-
-/*
-void MpuDrv::DbgPrintVectorInt16(const char *s, VectorInt16 *v) {
-  Serial.print(s); Serial.print(v->x); Serial.print("\t"); Serial.print(v->y); Serial.print("\t"); Serial.println(v->z);
-}
-
-void MpuDrv::DbgPrintQInt16(const char *s, int16_t *q) {
-  Serial.print(s);
-  for(uint8_t i=0; i<4; i++) {Serial.print("\t"); Serial.print(q[i]);}
-  Serial.println();
-}
-
-void MpuDrv::DbgPrintVectorFloat(const char *s, VectorFloat *v) {
-  Serial.print(s); Serial.print(v->x); Serial.print("\t"); Serial.print(v->y); Serial.print("\t"); Serial.println(v->z);
-}
-
-void MpuDrv::DbgPrintArr3Float(const char *s, float *q) {
-  Serial.print(s);
-  for(uint8_t i=0; i<3; i++) {Serial.print("\t"); Serial.print(q[i]);}
-  Serial.println();
-}
-*/
-// ================================================================
-// ===               INTERRUPT DETECTION ROUTINE                ===
-// ================================================================
-/*
-volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
-void dmpDataReady() {
-    mpuInterrupt = true;
-}
-*/
-
-
 

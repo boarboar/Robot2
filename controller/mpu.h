@@ -41,12 +41,6 @@ public:
   void copyAlarms();
   void flushAlarms();
   float getYaw();
-  /*
-  static void DbgPrintVectorInt16(const char *s, VectorInt16 *v);
-  static void DbgPrintQInt16(const char *s, int16_t *q);
-  static void DbgPrintVectorFloat(const char *s, VectorFloat *v);
-  static void DbgPrintArr3Float(const char *s, float *q);
-  */
 protected:  
   MpuDrv();
   // MPU control/status vars

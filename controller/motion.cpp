@@ -23,8 +23,6 @@ void Motion::Init(Motor *m) {
   bReady = false;      
   pxMotor=m;
   fCurrYaw = 0.0f;
-  fSinY = 0.0f; fCosY = 1.0f; 
-
   Reset();
   Serial.println("Motion init OK");
 }
@@ -71,7 +69,6 @@ void Motion::DoCycle(float yaw, int16_t dt)
   int8_t dir[2];
   pxMotor->DoCycle();
   if(!bReady) return;
-  float f_dyaw=yaw-fCurrYaw;
   fCurrYaw = yaw;
   
   //uint32_t dt=(xTaskGetTickCount()-xRunTime)*portTICK_PERIOD_MS;
@@ -87,15 +84,10 @@ void Motion::DoCycle(float yaw, int16_t dt)
   lAdvance0[1]=lAdvance[1];
   // integrate
 
-  fSinY=fSinY+fCosY*f_dyaw;
-  fCosY=fCosY-fSinY*f_dyaw;
+  fCrd[0]+=mov*sin(yaw);
+  fCrd[1]+=mov*cos(yaw);
 
-  //fCrd[0]+=mov*sin(yaw);
-  //fCrd[1]+=mov*cos(yaw);
 
-  fCrd[0]+=mov*fSinY;
-  fCrd[1]+=mov*fCosY;
-  
   if(iTargSpeed || iTargRot) 
   { // movement
     if(lPIDCnt>0) 
@@ -193,7 +185,7 @@ void Motion::Move(int16_t tspeed)
 void Motion::Steer(int16_t angle)
 {
   if(!bReady) return;
-  xLogger.vAddLogMsg("ROT A:", angle);
+  //xLogger.vAddLogMsg("ROT A:", angle);
   AdjustTargBearing(angle, true);
   if(!iTargRot && !iTargSpeed) return StartRotate(M_SPEED_NORM);
 }
@@ -201,7 +193,7 @@ void Motion::Steer(int16_t angle)
 void Motion::MoveBearing(int16_t angle)
 {
   if(!bReady) return;
-  xLogger.vAddLogMsg("BER A:", angle);
+  //xLogger.vAddLogMsg("BER A:", angle);
   AdjustTargBearing(angle, false);
   if(!iTargRot && !iTargSpeed) return StartRotate(M_SPEED_NORM);
 }

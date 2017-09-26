@@ -257,14 +257,15 @@ boolean CommManager::ProcessCommand()
           nvic_sys_reset();
         } else {
           // integrator rest
+          xLogger.vAddLogMsg("RST INT");           
           if(MpuDrv::Mpu.Acquire()) {
             MpuDrv::Mpu.resetIntegrator();
             MpuDrv::Mpu.Release();
           }      
           if(xMotion.Acquire()) {
             xMotion.Reset();
-            val[3]=xMotion.GetAdvanceCm();
-            vcnt+=3;
+            //val[3]=xMotion.GetAdvanceCm();
+            //vcnt+=3;
             xMotion.Release();
           }
         }
