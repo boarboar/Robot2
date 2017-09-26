@@ -6,7 +6,7 @@ class CommManager {
   public:
     void Init(uint32_t comm_speed=115200, int16_t timeout=500);
     int Command(char *cmd);
-    int CommandRetr(char *cmd, uint16_t nretr=3);
+    int CommandRetr(char *cmd, uint16_t nretr=5);
     int Get(uint16_t reg);
     int Set(uint16_t reg, int16_t *va, uint16_t nval);
     int GetResultCnt();

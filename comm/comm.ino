@@ -17,7 +17,7 @@ const char* cfg_file = "/config.json";
 const int udp_port = 4444;
 const int CYCLE_TO = 5;
 //const int CYCLE_MED_TO = 1000; // test only
-const int CYCLE_MED_TO = 150; 
+const int CYCLE_MED_TO = 120; 
 const int CYCLE_SLOW_TO = 2000;
 
 uint32_t last_cycle;
@@ -51,7 +51,7 @@ void setup() {
   WiFi.begin(ssid, password);
   Serial.print(F("\nConnecting to ")); Serial.print(ssid);
   i = 0;
-  while (WiFi.status() != WL_CONNECTED && i++ < 20) {delay(500); Serial.print(".");}
+  while (WiFi.status() != WL_CONNECTED && i++ < 40) {delay(500); Serial.print(".");}
   Serial.println();
   if(i == 21){
     Serial.print(F("Could not connect to ")); Serial.println(ssid);
