@@ -63,7 +63,9 @@ int CommManager::CommandRetr(char *cmd, uint16_t nretr)
   int rc=0;
   while((rc=Command(cmd)) && nretr--) {
       yield();
-      Serial.print("Retry "); Serial.println(nretr);
+      Serial.print("RTR="); Serial.print(nretr);
+      Serial.print(" ERR="); Serial.print(rc);     
+      Serial.print(" RSP="); Serial.println(buf);      
   }
   return rc;
 }
@@ -116,8 +118,8 @@ int CommManager::Command(char *cmd)
   }
 
   
-  Serial.print("<");
-  Serial.println(buf);
+  //Serial.print("<");
+  //Serial.println(buf);
   
   uint8_t crc=CRC();
 

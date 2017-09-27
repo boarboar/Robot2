@@ -17,7 +17,7 @@ const char* cfg_file = "/config.json";
 const int udp_port = 4444;
 const int CYCLE_TO = 5;
 //const int CYCLE_MED_TO = 1000; // test only
-const int CYCLE_MED_TO = 120; 
+const int CYCLE_MED_TO = 100; //120
 const int CYCLE_SLOW_TO = 2000;
 
 uint32_t last_cycle;
