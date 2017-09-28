@@ -10,15 +10,13 @@
 #define SERVO_WAIT    150
 //#define SERVO_WAIT    2000 //test
 
-#define USENS_BASE    7
-/*
-// actual USENS_DIVISOR constant should be 58.138, but we make correction for angle
-#define USENS_DIVISOR 57
-*/
+//#define USENS_BASE    7
 
 #define USENS_DIVISOR 58
 #define PING_OVERHEAD 5
 #define PING_WAIT_MS  40 
+
+// TEST DIST 245
 
 extern ComLogger xLogger;
 
@@ -168,7 +166,13 @@ void Sensor::DoCycle() {
             
       if(Acquire()) 
       {
-        if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR+USENS_BASE);
+        // + BASE is wrong;   
+        // actual shoud be 
+        // sqrt(dist*dist+b*b+2*b*dist*cos(a)**2) = 
+        // sqrt((dist+b)**2-2*b*dist*sin(a)**2) = 
+        //if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR+USENS_BASE);
+        //else value[current_sens] = -2;
+        if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR);
         else value[current_sens] = -2;
         Release();  
       }
