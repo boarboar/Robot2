@@ -83,8 +83,8 @@ int16_t Controller::getX_cm() { return crd[0];}
 int16_t Controller::getY_cm() { return crd[1];}
 int16_t Controller::getDist_cm() { return dist;}
 int16_t Controller::getYaw_grad() { return yaw;}
-
 int16_t *Controller::getSensors() { return sensors;}
+int16_t *Controller::getPower() { return pow;}
 
 uint8_t Controller::_testConnection() {
   int res=cmgr.Get(REG_ID);
@@ -131,6 +131,15 @@ uint8_t Controller::_getData() {
   if(cnt<nsens+5) return true;
   for(int i=0; i<nsens; i++) sensors[i]=v[5+i];
   
+  res=cmgr.Get(REG_MOTOR_POWER);
+  if(res!=0 || cmgr.GetResultCnt()<2) {
+    Logger::Instance.putEvent(Logger::UMP_LOGGER_MODULE_CTL, Logger::UMP_LOGGER_ALARM, CTL_FAIL_RD, REG_MOTOR_POWER, res, cmgr.GetResultCnt());
+  } else {
+    v=cmgr.GetResultVal();
+    pow[0]=v[0];
+    pow[1]=v[1];
+  }
+
   return true;
 }
 

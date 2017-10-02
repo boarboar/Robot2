@@ -129,7 +129,14 @@ boolean CommManager::ProcessCommand()
         if (xMotor.GetEncDistMM((uint16_t*)val, NULL)) { //BAD !!!
           ;
         }
-        break;    
+        break;   
+      case REG_MOTOR_POWER:   
+        if(xMotion.Acquire()) {
+          vcnt=2;
+          xMotion.GetPower(val); 
+          xMotion.Release();
+        }
+        break;
       case REG_SENS:
         if(xSensor.Acquire()) {
           vcnt=xSensor.GetNMeas();
@@ -232,19 +239,31 @@ boolean CommManager::ProcessCommand()
     //    break;    
     case REG_MOTOR_POWER:
         if(vcnt<2) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
-        xMotion.SetMotors(val[0], val[1]);
+        if(xMotion.Acquire()) {
+          xMotion.SetMotors(val[0], val[1]);
+          xMotion.Release();
+        }  
         break;
     case REG_MOVE:
         if(vcnt<1) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
-        xMotion.Move(val[0]);
+        if(xMotion.Acquire()) {
+          xMotion.Move(val[0]);          
+          xMotion.Release();
+        }  
         break;    
     case REG_STEER:
         if(vcnt<1) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
-        xMotion.Steer(val[0]);
+        if(xMotion.Acquire()) {
+          xMotion.Steer(val[0]);
+          xMotion.Release();
+        }  
         break;    
     case REG_MOVE_BEAR:
         if(vcnt<1) { rc=CM_RC_FAIL_TOOLESSVALS; break; }
-        xMotion.MoveBearing(val[0]);
+        if(xMotion.Acquire()) {
+          xMotion.MoveBearing(val[0]);
+          xMotion.Release();
+        }  
         break;   
     case REG_RESET:
         // requires one parameter with fixed value of 100

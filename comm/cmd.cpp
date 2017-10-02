@@ -299,6 +299,9 @@ int16_t c_steer(JsonObject& root, JsonObject& rootOut) {
   int16_t steer_val=root["S"];
   Serial.println(steer_val);
   if(!Controller::ControllerProc.setTargSteering(steer_val)) return -5;
+  JsonArray& pw = rootOut.createNestedArray("W");
+  int16_t *pwrs=Controller::ControllerProc.getPower();
+  pw.add(pwrs[0]), pw.add(pwrs[1]);
   //rootOut["TS"]=Controller::ControllerProc.getTargSpeed();
   return 0;
 }
@@ -309,6 +312,9 @@ int16_t c_move(JsonObject& root, JsonObject& rootOut) {
   int16_t speed_val=root["V"];
   Serial.println(speed_val);
   if(!Controller::ControllerProc.setTargSpeed(speed_val)) return -5;    
+  JsonArray& pw = rootOut.createNestedArray("W");
+  int16_t *pwrs=Controller::ControllerProc.getPower();
+  pw.add(pwrs[0]), pw.add(pwrs[1]);
   //rootOut["TS"]=Controller::ControllerProc.getTargSpeed();
   //rootOut["QE"]=Controller::ControllerProc.getAVQErr();  
   return 0;
@@ -320,6 +326,9 @@ int16_t c_bear(JsonObject& root, JsonObject& rootOut) {
   int16_t angle_val=root["A"];
   Serial.println(angle_val);
   if(!Controller::ControllerProc.setTargBearing(angle_val)) return -5;
+  JsonArray& pw = rootOut.createNestedArray("W");
+  int16_t *pwrs=Controller::ControllerProc.getPower();
+  pw.add(pwrs[0]), pw.add(pwrs[1]);
   //rootOut["TS"]=Controller::ControllerProc.getTargSpeed();
   return 0;
 }

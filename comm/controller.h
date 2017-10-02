@@ -36,7 +36,7 @@ public:
   int16_t getDist_cm();
   int16_t getYaw_grad();
   int16_t *getSensors();  
-
+  int16_t *getPower();  
   
 protected:  
   enum Regs {REG_None=0, REG_ID=1, REG_STATUS=2, REG_SENS=3, REG_ALL=4, REG_MOTOR_POWER=5, REG_MOVE=6, REG_STEER=7, REG_MOVE_BEAR=8, REG_ALARM=9, REG_ENC=10, 
@@ -55,6 +55,7 @@ private:
   uint8_t nsens;
   int16_t imu_stat;
   int16_t crd[2];
+  int16_t pow[2];
   int16_t dist;
   int16_t yaw;
   int16_t sensors[SENS_SIZE];

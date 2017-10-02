@@ -50,13 +50,14 @@ void Motion::Reset() {
   for(int i=0; i<2; i++ ) {
     lAdvance[i]=0;
     lAdvance0[i]=0;
-    fCrd[i]=0.0f;
+    fCrd[i]=0.0f;    
+    run_pow[i]=0;
   }
   fAdvanceTot=0.0f;
   err_bearing_p_0=0;
   err_bearing_i=0;
   base_pow=0;
-  delta_pow=0;  
+  delta_pow=0;    
 }
 
 bool Motion::HasTask() {
@@ -177,6 +178,7 @@ void Motion::Move(int16_t tspeed)
   delta_pow=0;
    
   int16_t cur_pow[2]={base_pow, base_pow};
+  //cur_pow[0]=cur_pow[1]=base_pow;
   //xLogger.vAddLogMsg("MV TVB,P*:", iTargSpeed, iTargBearing, cur_pow[0], cur_pow[1]);
   SetPowerStraight(iTargSpeed, cur_pow);
   return;
@@ -255,7 +257,9 @@ void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
   if(dp2<-100) dp2=-100; 
   else if(dp2>100) dp2=100;
   if(pxMotor->Acquire()) {
-    pxMotor->SetMotors((int8_t)dp1, (int8_t)dp2);     
+    pxMotor->SetMotors((int8_t)dp1, (int8_t)dp2);   
+    run_pow[0]=dp1;  
+    run_pow[1]=dp2;  
     pxMotor->Release();
   }
 }
@@ -278,3 +282,8 @@ int16_t Motion::GetAdvanceCm() {
   return (int16_t)(fAdvanceTot/10.0f);
 }
 
+void Motion::GetPower(int16_t *pow) 
+{
+  pow[0]=run_pow[0];
+  pow[1]=run_pow[1];
+}
