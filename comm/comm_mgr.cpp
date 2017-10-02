@@ -75,8 +75,8 @@ int CommManager::Command(char *cmd)
   if(NULL!=cmd) strcpy(buf, cmd);
   strcat(buf, "%");
   itoa_cat(CRC(), buf);
-  Serial.print(">");
-  Serial.println(buf);
+  //Serial.print(">");
+  //Serial.println(buf);
   while (swSer.available() > 0)  swSer.read();
   swSer.println(buf);
   long t=millis();
