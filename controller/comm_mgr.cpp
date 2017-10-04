@@ -118,10 +118,18 @@ boolean CommManager::ProcessCommand()
         val[0]=xSensor.GetNMeas();
         break;        
       case REG_STATUS:
-        vcnt=1;
+        // St[0] yaw[1] X[2] Y[3] Dist[4] PW[5] PW[6]
+        vcnt=7;
         if(MpuDrv::Mpu.Acquire()) {
           val[0]=MpuDrv::Mpu.getStatus();
+          val[1]=MpuDrv::Mpu.getYaw()*180.0/PI;
           MpuDrv::Mpu.Release();
+        }
+        if(xMotion.Acquire()) {
+          xMotion.GetCrdCm(val+2); 
+          val[4]=xMotion.GetAdvanceCm();
+          xMotion.GetPower(val+5); 
+          xMotion.Release();
         }
         break;  
       case REG_ENC:

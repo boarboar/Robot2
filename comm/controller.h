@@ -46,6 +46,7 @@ protected:
   uint8_t _testConnection();
   uint8_t _getNumSensors();
   uint8_t _getData();
+  uint8_t _getData_1();
   uint8_t _resetIMU();
 
 private:  

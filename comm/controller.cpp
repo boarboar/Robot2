@@ -55,7 +55,7 @@ bool Controller::reset() {
 
 bool Controller::process() {
   if(!cready) return false;
-  if(!_getData()) return false;
+  if(!_getData_1()) return false;
   return true;
 }
 
@@ -107,6 +107,38 @@ uint8_t Controller::_resetIMU() {
   // do not expect answer
   return true;
 }
+
+uint8_t Controller::_getData_1() {
+  int res=cmgr.Get(REG_STATUS);
+  // St[0] yaw[1] X[2] Y[3] Dist[4] PW[5] PW[6]  
+  if(res!=0 || cmgr.GetResultCnt()!=7) {
+    Logger::Instance.putEvent(Logger::UMP_LOGGER_MODULE_CTL, Logger::UMP_LOGGER_ALARM, CTL_FAIL_RD, REG_ALL, res, cmgr.GetResultCnt());
+    return 0;
+  }
+
+  //uint16_t cnt=cmgr.GetResultCnt();
+  const int16_t *v=cmgr.GetResultVal();
+
+  imu_stat=v[0]&0xFF;
+  yaw=v[1];
+  crd[0]=v[2];
+  crd[1]=v[3];
+  dist=v[4];
+  pow[0]=v[5];
+  pow[1]=v[6];
+
+  
+  res=cmgr.Get(REG_SENS);
+  if(res!=0 || cmgr.GetResultCnt()!=nsens) {
+    Logger::Instance.putEvent(Logger::UMP_LOGGER_MODULE_CTL, Logger::UMP_LOGGER_ALARM, CTL_FAIL_RD, REG_MOTOR_POWER, res, cmgr.GetResultCnt());
+    return true;
+  } 
+  
+  v=cmgr.GetResultVal();
+  for(int i=0; i<nsens; i++) sensors[i]=v[i];
+  return true;
+}
+
 
 uint8_t Controller::_getData() {
   int res=cmgr.Get(REG_ALL);
