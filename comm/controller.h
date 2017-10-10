@@ -34,6 +34,7 @@ public:
   int16_t getX_cm();
   int16_t getY_cm();
   int16_t getDist_cm();
+  int16_t getSpeed_cmps();
   int16_t getYaw_grad();
   int16_t *getSensors();  
   int16_t *getPower();  
@@ -59,6 +60,7 @@ private:
   int16_t pow[2];
   int16_t dist;
   int16_t yaw;
+  int16_t speed;
   int16_t sensors[SENS_SIZE];
 };
 

@@ -58,6 +58,7 @@ void Motion::Reset() {
   err_bearing_i=0;
   base_pow=0;
   delta_pow=0;    
+  speed = 0;
 }
 
 bool Motion::HasTask() {
@@ -83,6 +84,11 @@ void Motion::DoCycle(float yaw, int16_t dt)
   fAdvanceTot+=mov;
   lAdvance0[0]=lAdvance[0];
   lAdvance0[1]=lAdvance[1];
+
+  // diff
+
+  speed = (int16_t)((int32_t)mov*1000/dt);
+
   // integrate
 
   fCrd[0]+=mov*sin(yaw);
@@ -280,6 +286,10 @@ void Motion::GetCrdCm(int16_t *crd)
 
 int16_t Motion::GetAdvanceCm() {  
   return (int16_t)(fAdvanceTot/10.0f);
+}
+
+int16_t Motion::GetSpeedCmpS() {
+  return speed/10;
 }
 
 void Motion::GetPower(int16_t *pow) 

@@ -82,6 +82,7 @@ uint8_t Controller::getNumSensors() { return nsens;}
 int16_t Controller::getX_cm() { return crd[0];}
 int16_t Controller::getY_cm() { return crd[1];}
 int16_t Controller::getDist_cm() { return dist;}
+int16_t Controller::getSpeed_cmps() { return speed;}
 int16_t Controller::getYaw_grad() { return yaw;}
 int16_t *Controller::getSensors() { return sensors;}
 int16_t *Controller::getPower() { return pow;}
@@ -110,8 +111,8 @@ uint8_t Controller::_resetIMU() {
 
 uint8_t Controller::_getData_1() {
   int res=cmgr.Get(REG_STATUS);
-  // St[0] yaw[1] X[2] Y[3] Dist[4] PW[5] PW[6]  
-  if(res!=0 || cmgr.GetResultCnt()!=7) {
+  // St[0] yaw[1] X[2] Y[3] Dist[4] PW[5] PW[6] Speed[8] 
+  if(res!=0 || cmgr.GetResultCnt()!=8) {
     Logger::Instance.putEvent(Logger::UMP_LOGGER_MODULE_CTL, Logger::UMP_LOGGER_ALARM, CTL_FAIL_RD, REG_ALL, res, cmgr.GetResultCnt());
     return 0;
   }
@@ -126,7 +127,7 @@ uint8_t Controller::_getData_1() {
   dist=v[4];
   pow[0]=v[5];
   pow[1]=v[6];
-
+  speed = v[8];
   
   res=cmgr.Get(REG_SENS);
   if(res!=0 || cmgr.GetResultCnt()!=nsens) {

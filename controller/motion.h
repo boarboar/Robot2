@@ -13,6 +13,7 @@ class Motion {
     //void GetAdvance(uint32_t *dst_dist);
     void GetCrdCm(int16_t *crd);
     void GetPower(int16_t *pow);
+    int16_t GetSpeedCmpS();
     int16_t GetAdvanceCm();
     bool HasTask();
     bool Acquire();
@@ -35,7 +36,8 @@ class Motion {
     int16_t delta_pow;
     int16_t base_pow;
     int16_t run_pow[2];
-    uint32_t lAdvance0[2], lAdvance[2]; // in mm
+    int16_t speed; //mm_s
+    uint32_t lAdvance0[2], lAdvance[2]; // in mm    
     float fAdvanceTot;
     float fCrd[2];
     float fCurrYaw;    

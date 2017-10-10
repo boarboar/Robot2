@@ -241,38 +241,7 @@ int16_t c_getpos(JsonObject& /*root*/, JsonObject& rootOut) {
   JsonArray& s = rootOut.createNestedArray("S");
   for(i=0; i<ns; i++) s.add((int)Controller::ControllerProc.getSensors()[i]);
   rootOut["D"]=Controller::ControllerProc.getDist_cm();
-  //rootOut["V"]=(int16_t)(Controller::ControllerProc.getSpeed());
-  rootOut["V"]=0;
-  
-  /*
-   * !!!!!!!!!!!!!!!!!
-  rootOut["MST"]=MpuDrv::Mpu.getStatus();
-  if(!MpuDrv::Mpu.isDataReady()) return -5;
-  JsonArray& ya = rootOut.createNestedArray("YPR");
-  float ypr[3], af[3], vf[3];
-  uint8_t i;
-  MpuDrv::Mpu.getAll(ypr, af, vf); 
-  for(i=0; i<3; i++) ya.add(ypr[i] * 180/M_PI);
-  //JsonArray& v = rootOut.createNestedArray("V");
-  //for(i=0; i<3; i++) v.add(vf[i]);
-  
-  JsonArray& r = rootOut.createNestedArray("CRD");
-  //for(i=0; i<2; i++) r.add(crd[i]);
-  r.add((int)Controller::ControllerProc.getX());
-  r.add((int)Controller::ControllerProc.getY());
-  r.add(0); // Z-crd
-
-  JsonArray& pw = rootOut.createNestedArray("W");
-  int16_t *pwrs=Controller::ControllerProc.getStoredPower();
-  pw.add(pwrs[0]), pw.add(pwrs[1]);
-
-  uint8_t ns=Controller::ControllerProc.getNumSensors();
-  JsonArray& s = rootOut.createNestedArray("S");
-  for(i=0; i<ns; i++) s.add((int)Controller::ControllerProc.getStoredSensors()[i]);
-  
-  rootOut["D"]=Controller::ControllerProc.getDistance();
-  rootOut["V"]=(int16_t)(Controller::ControllerProc.getSpeed());
-  */
+  rootOut["V"]=Controller::ControllerProc.getSpeed_cmps();
   return 0;
 }
 
@@ -301,7 +270,7 @@ int16_t c_steer(JsonObject& root, JsonObject& rootOut) {
   JsonArray& pw = rootOut.createNestedArray("W");
   int16_t *pwrs=Controller::ControllerProc.getPower();
   pw.add(pwrs[0]), pw.add(pwrs[1]);
-  //rootOut["TS"]=Controller::ControllerProc.getTargSpeed();
+  rootOut["V"]=Controller::ControllerProc.getSpeed_cmps();
   return 0;
 }
 
@@ -314,8 +283,7 @@ int16_t c_move(JsonObject& root, JsonObject& rootOut) {
   JsonArray& pw = rootOut.createNestedArray("W");
   int16_t *pwrs=Controller::ControllerProc.getPower();
   pw.add(pwrs[0]), pw.add(pwrs[1]);
-  //rootOut["TS"]=Controller::ControllerProc.getTargSpeed();
-  //rootOut["QE"]=Controller::ControllerProc.getAVQErr();  
+  rootOut["V"]=Controller::ControllerProc.getSpeed_cmps();
   return 0;
 }
 
@@ -328,6 +296,6 @@ int16_t c_bear(JsonObject& root, JsonObject& rootOut) {
   JsonArray& pw = rootOut.createNestedArray("W");
   int16_t *pwrs=Controller::ControllerProc.getPower();
   pw.add(pwrs[0]), pw.add(pwrs[1]);
-  //rootOut["TS"]=Controller::ControllerProc.getTargSpeed();
+  rootOut["V"]=Controller::ControllerProc.getSpeed_cmps();
   return 0;
 }
