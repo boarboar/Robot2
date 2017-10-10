@@ -127,7 +127,7 @@ uint8_t Controller::_getData_1() {
   dist=v[4];
   pow[0]=v[5];
   pow[1]=v[6];
-  speed = v[8];
+  speed = v[7];
   
   res=cmgr.Get(REG_SENS);
   if(res!=0 || cmgr.GetResultCnt()!=nsens) {

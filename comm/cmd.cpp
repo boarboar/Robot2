@@ -75,7 +75,7 @@ int16_t CmdProc::doCmd() {
   //StaticJsonBuffer<JSON_OBJECT_SIZE(4)> jsonBufferIn;
   //StaticJsonBuffer<JSON_OBJECT_SIZE(4)+ JSON_ARRAY_SIZE(4)> jsonBufferOut;
   StaticJsonBuffer<200> jsonBufferIn;
-  StaticJsonBuffer<400> jsonBufferOut;
+  StaticJsonBuffer<460> jsonBufferOut;
   JsonObject& root = jsonBufferIn.parseObject(packetBuffer);
   JsonObject& rootOut = jsonBufferOut.createObject();
   _doCmd(root, rootOut);
