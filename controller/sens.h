@@ -27,5 +27,6 @@ class Sensor {
     xSemaphoreHandle xSensFree;
     TaskHandle_t xTaskToNotify;
     bool running;
+    float fCosines[SERVO_NSTEPS+1];
 };
 

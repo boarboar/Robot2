@@ -10,7 +10,7 @@
 #define SERVO_WAIT    150
 //#define SERVO_WAIT    2000 //test
 
-//#define USENS_BASE    7
+#define USENS_BASE    7
 
 #define USENS_DIVISOR 58
 #define PING_OVERHEAD 5
@@ -73,6 +73,8 @@ void Sensor::Init(int servo_pin, int sens_in_pin_0, int sens_out_pin_0, int sens
     }
     for(i=0; i<M_SENS_N; i++) 
       value[i]=-2;
+    for(i=0; i<=SERVO_NSTEPS; i++)   
+      fCosines[i] = cos((float)i*SERVO_STEP*PI/180);
     sservo_pos=0; //90
     sservo_step=1; 
     sensor_instance = this;
@@ -151,7 +153,7 @@ void Sensor::DoCycle() {
       delayMicroseconds(10);
       digitalWrite(pin_out, LOW);
       taskEXIT_CRITICAL();
-      uint32_t d=0;
+      int32_t d=0;
    
       if(digitalRead(pin_in)==HIGH) {
         // not completed
@@ -163,7 +165,18 @@ void Sensor::DoCycle() {
         else d=0;              
       }
       xTaskToNotify = NULL;
-            
+
+      if(d>0 && USENS_BASE!=0) {  // base shift
+        if(sens_step==0) { //fwd
+          if(sservo_pos==0) d += USENS_BASE;
+          else d=sqrt(2.0f*d*USENS_BASE*fCosines[abs(sservo_pos)]+d*d+USENS_BASE*USENS_BASE);
+        } else { //bck
+          if(sservo_pos==0) d -= USENS_BASE;
+          else d=sqrt(-2.0f*d*USENS_BASE*fCosines[abs(sservo_pos)]+d*d+USENS_BASE*USENS_BASE);
+          if(d<1) d=1;
+        }
+      }
+
       if(Acquire()) 
       {
         // + BASE is wrong;   
@@ -173,6 +186,7 @@ void Sensor::DoCycle() {
         //if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR+USENS_BASE);
         //else value[current_sens] = -2;
         if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR);
+        
         else value[current_sens] = -2;
         Release();  
       }

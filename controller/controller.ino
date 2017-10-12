@@ -126,7 +126,7 @@ static void vLazyTask(void *pvParameters) {
           MpuDrv::Mpu.Release();
         } 
         MpuDrv::Mpu.flushAlarms();   
-      /*
+     
         if(!hasMotionTask) {
           // if idle, do test output
           if(imu_status==MpuDrv::ST_READY) {  
@@ -139,22 +139,25 @@ static void vLazyTask(void *pvParameters) {
               xSensor.Release();  
             }
             if(vcnt>0) {
-               xLogger.vAddLogMsg("S[1-3]", val[0], val[1], val[2]);           
+               //xLogger.vAddLogMsg("S[1-3]", val[0], val[1], val[2]);           
                //xLogger.vAddLogMsg("S[4-6]", val[3], val[4], val[5]);           
-               xLogger.vAddLogMsg("S[7-9]", val[6], val[7], val[8]);            
+               //xLogger.vAddLogMsg("S[7-9]", val[6], val[7], val[8]);            
                //xLogger.vAddLogMsg("S[10]", val[9]);          
+               xLogger.vAddLogMsg("S[2,7]", val[2], val[7], 0);            
             }
             //val = yaw*180.0/PI;
             //xLogger.vAddLogMsg("Y", (int16_t)yaw*180.0/PI);    
           }
+          /*
           if (xMotor.Acquire()) { 
             xMotor.GetEncDistMM(enc, NULL);
             xMotor.Release();
             //xLogger.vAddLogMsg("E1", enc[0], "E2", enc[1]);           
           }
          xLogger.vAddLogMsg("Y,E*", (int16_t)(yaw*180.0/PI), enc[0], enc[1]);             
+         */
          }
-       */
+       
        
        if(needReset) {
           xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_SYS, 101);
