@@ -16,6 +16,8 @@
 #define PING_OVERHEAD 5
 #define PING_WAIT_MS  40 
 
+#define USENS_BASE_D    (float)USENS_BASE*USENS_DIVISOR
+
 // TEST DIST 245
 
 extern ComLogger xLogger;
@@ -168,11 +170,11 @@ void Sensor::DoCycle() {
 
       if(d>0 && USENS_BASE!=0) {  // base shift
         if(sens_step==0) { //fwd
-          if(sservo_pos==0) d += USENS_BASE;
-          else d=sqrt(2.0f*d*USENS_BASE*fCosines[abs(sservo_pos)]+d*d+USENS_BASE*USENS_BASE);
+          if(sservo_pos==0) d += USENS_BASE_D;
+          else d=sqrt(2.0f*d*USENS_BASE_D*fCosines[abs(sservo_pos)]+(float)d*d+USENS_BASE_D*USENS_BASE_D);
         } else { //bck
-          if(sservo_pos==0) d -= USENS_BASE;
-          else d=sqrt(-2.0f*d*USENS_BASE*fCosines[abs(sservo_pos)]+d*d+USENS_BASE*USENS_BASE);
+          if(sservo_pos==0) d -= USENS_BASE_D;
+          else d=sqrt(-2.0f*d*USENS_BASE_D*fCosines[abs(sservo_pos)]+(float)d*d+USENS_BASE_D*USENS_BASE_D);
           if(d<1) d=1;
         }
       }
