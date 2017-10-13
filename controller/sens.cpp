@@ -170,9 +170,11 @@ void Sensor::DoCycle() {
 
       if(d>0 && USENS_BASE!=0) {  // base shift
         if(sens_step==0) { //fwd
+          // sqrt(dist*dist+b*b+2*b*dist*cos(a)**2)
           if(sservo_pos==0) d += USENS_BASE_D;
           else d=sqrt(2.0f*d*USENS_BASE_D*fCosines[abs(sservo_pos)]+(float)d*d+USENS_BASE_D*USENS_BASE_D);
         } else { //bck
+          // sqrt(dist*dist+b*b-2*b*dist*cos(a)**2)
           if(sservo_pos==0) d -= USENS_BASE_D;
           else d=sqrt(-2.0f*d*USENS_BASE_D*fCosines[abs(sservo_pos)]+(float)d*d+USENS_BASE_D*USENS_BASE_D);
           if(d<1) d=1;
@@ -181,14 +183,7 @@ void Sensor::DoCycle() {
 
       if(Acquire()) 
       {
-        // + BASE is wrong;   
-        // actual shoud be 
-        // sqrt(dist*dist+b*b+2*b*dist*cos(a)**2) = 
-        // sqrt((dist+b)**2-2*b*dist*sin(a)**2) = 
-        //if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR+USENS_BASE);
-        //else value[current_sens] = -2;
-        if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR);
-        
+        if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR);        
         else value[current_sens] = -2;
         Release();  
       }

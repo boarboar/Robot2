@@ -143,7 +143,7 @@ static void vLazyTask(void *pvParameters) {
                //xLogger.vAddLogMsg("S[4-6]", val[3], val[4], val[5]);           
                //xLogger.vAddLogMsg("S[7-9]", val[6], val[7], val[8]);            
                //xLogger.vAddLogMsg("S[10]", val[9]);          
-               xLogger.vAddLogMsg("S[2,7]", val[2], val[7], 0);            
+               //xLogger.vAddLogMsg("S[2,7]", val[2], val[7], 0);            
             }
             //val = yaw*180.0/PI;
             //xLogger.vAddLogMsg("Y", (int16_t)yaw*180.0/PI);    

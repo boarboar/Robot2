@@ -11,6 +11,12 @@ const int16_t bear_pid_gain_i=4;
 const int16_t bear_pid_gain_div=10;
 const int16_t bear_pid_limit_i=100;
 
+const int16_t speed_pid_gain_p=2;
+const int16_t speed_pid_gain_d=4;
+const int16_t speed_pid_gain_i=1;
+const int16_t speed_pid_gain_div=10;
+const int16_t speed_pid_limit_i=10;
+
 const int M_POW_MIN=30; 
 const int M_POW_MAX=100;
 const int M_POW_NORM=60;
@@ -56,6 +62,7 @@ void Motion::Reset() {
   fAdvanceTot=0.0f;
   err_bearing_p_0=0;
   err_bearing_i=0;
+  err_speed_i=err_speed_p_0=0;
   base_pow=0;
   delta_pow=0;    
   speed = 0;
@@ -87,7 +94,7 @@ void Motion::DoCycle(float yaw, int16_t dt)
 
   // diff
 
-  speed = (int16_t)((int32_t)mov*1000/dt);
+  speed = (speed+(int16_t)((int32_t)mov*1000/dt))/2; //mm_s; LPF
 
   // integrate
 
@@ -99,7 +106,7 @@ void Motion::DoCycle(float yaw, int16_t dt)
   { // movement
     if(lPIDCnt>0) 
     {
-      int16_t err_bearing_p, err_bearing_d;
+      //int16_t err_bearing_p, err_bearing_d;
       err_bearing_p = (int16_t)(yaw*180.0f/PI-iTargBearing);      
       while(err_bearing_p>180) err_bearing_p-=360;
       while(err_bearing_p<-180) err_bearing_p+=360;   
@@ -133,7 +140,16 @@ void Motion::DoCycle(float yaw, int16_t dt)
       int16_t cur_pow[2];
       if(iTargSpeed) {              
         cur_pow[0]=base_pow+delta_pow;
-        cur_pow[1]=base_pow-delta_pow;       
+        cur_pow[1]=base_pow-delta_pow;     
+        // speed PID; 
+        err_speed_p = speed-iTargSpeed; // direction???       
+        err_speed_d=err_speed_p-err_speed_p_0;
+        err_speed_d=(int32_t)err_speed_d*100/dt;
+        err_speed_i=err_speed_i+(int32_t)err_speed_p*dt/100;             
+        if(err_speed_i>speed_pid_limit_i) err_speed_i=speed_pid_limit_i;
+        if(err_speed_i<-speed_pid_limit_i) err_speed_i=-speed_pid_limit_i;    
+        delta_pow=-(int16_t)((err_speed_p*speed_pid_gain_p+err_speed_d*speed_pid_gain_d+err_speed_i*speed_pid_gain_i)/speed_pid_gain_div);    
+        // not apply - yet
       } else {
         cur_pow[0]=base_pow-delta_pow;
         cur_pow[1]=base_pow-delta_pow;
@@ -178,7 +194,8 @@ void Motion::Move(int16_t tspeed)
 
 
   AdjustTargBearing(0, true);
-  err_bearing_p_0=err_bearing_i=0;    
+  err_bearing_p_0=err_bearing_i=0;  
+  err_speed_i=err_speed_p_0=0;  
   iTargSpeed=tspeed*10; //mm
   base_pow=(int32_t)abs(iTargSpeed)*M_POW_NORM/M_SPEED_NORM; // temp
   delta_pow=0;
@@ -232,7 +249,8 @@ void Motion::StartRotate(int16_t tspeed) {
   
   err_bearing_p_0=-a;     
   if(err_bearing_p_0<0) err_bearing_p_0=-err_bearing_p_0; 
-  err_bearing_i=0;    
+  err_bearing_i=0;  
+  err_speed_i=err_speed_p_0=0;  
   base_pow=(int32_t)abs(iTargRot)*M_POW_NORM/M_SPEED_NORM; // temp
   delta_pow=0;  
   lPIDCnt=0;    

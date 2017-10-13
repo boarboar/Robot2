@@ -32,7 +32,10 @@ class Motion {
     int16_t iTargSpeed; //mm_s
     int16_t iTargRot; //mm_s ??
     uint32_t lPIDCnt;
+    int16_t err_bearing_p, err_bearing_d;
+    int16_t err_speed_p, err_speed_d;
     int16_t err_bearing_p_0, err_bearing_i;
+    int16_t err_speed_p_0, err_speed_i;
     int16_t delta_pow;
     int16_t base_pow;
     int16_t run_pow[2];
