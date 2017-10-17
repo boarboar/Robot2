@@ -20,7 +20,7 @@ const int16_t speed_pid_limit_i=10;
 const int M_POW_MIN=30; 
 const int M_POW_MAX=100;
 const int M_POW_NORM=60;
-const int M_SPEED_NORM=200;
+const int M_SPEED_NORM=250;
 
 const int M_ROT_TARG_DEV=1;  //rotation target deviation
 
@@ -93,8 +93,10 @@ void Motion::DoCycle(float yaw, int16_t dt)
   lAdvance0[1]=lAdvance[1];
 
   // diff
-
-  speed = (speed+(int16_t)((int32_t)mov*1000/dt))/2; //mm_s; LPF
+  // LPF 1:1
+  //speed = (speed+(int16_t)((int32_t)mov*1000/dt))/2; //mm_s; 
+  // LPF 3:1
+  speed = (speed*3+(int16_t)((int32_t)mov*1000/dt))/4; //mm_s; 
 
   // integrate
 
@@ -141,15 +143,17 @@ void Motion::DoCycle(float yaw, int16_t dt)
       if(iTargSpeed) {              
         cur_pow[0]=base_pow+delta_pow;
         cur_pow[1]=base_pow-delta_pow;     
-        // speed PID; 
-        err_speed_p = speed-iTargSpeed; // direction???       
-        err_speed_d=err_speed_p-err_speed_p_0;
-        err_speed_d=(int32_t)err_speed_d*100/dt;
-        err_speed_i=err_speed_i+(int32_t)err_speed_p*dt/100;             
-        if(err_speed_i>speed_pid_limit_i) err_speed_i=speed_pid_limit_i;
-        if(err_speed_i<-speed_pid_limit_i) err_speed_i=-speed_pid_limit_i;    
-        delta_pow=-(int16_t)((err_speed_p*speed_pid_gain_p+err_speed_d*speed_pid_gain_d+err_speed_i*speed_pid_gain_i)/speed_pid_gain_div);    
-        // not apply - yet
+        if(lPIDCnt>25) { // 500 ms
+          // speed PID; 
+          err_speed_p = speed-iTargSpeed; // direction???       
+          err_speed_d=err_speed_p-err_speed_p_0;
+          err_speed_d=(int32_t)err_speed_d*100/dt;
+          err_speed_i=err_speed_i+(int32_t)err_speed_p*dt/100;             
+          if(err_speed_i>speed_pid_limit_i) err_speed_i=speed_pid_limit_i;
+          if(err_speed_i<-speed_pid_limit_i) err_speed_i=-speed_pid_limit_i;    
+          delta_pow=-(int16_t)((err_speed_p*speed_pid_gain_p+err_speed_d*speed_pid_gain_d+err_speed_i*speed_pid_gain_i)/speed_pid_gain_div);    
+          // not apply - yet
+        }
       } else {
         cur_pow[0]=base_pow-delta_pow;
         cur_pow[1]=base_pow-delta_pow;
