@@ -7,7 +7,7 @@
 //#define SERVO_ZERO_SHIFT    10
 //#define SERVO_CORR    2
 #define SERVO_CORR    0
-#define SERVO_WAIT    150
+#define SERVO_WAIT    160
 //#define SERVO_WAIT    2000 //test
 
 #define USENS_BASE    7
@@ -16,7 +16,7 @@
 #define PING_OVERHEAD 5
 #define PING_WAIT_MS  40 
 
-#define USENS_BASE_D    (float)USENS_BASE*USENS_DIVISOR
+#define USENS_BASE_D    ((float)(USENS_BASE*USENS_DIVISOR))
 
 // TEST DIST 245
 

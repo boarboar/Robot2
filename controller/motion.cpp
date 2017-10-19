@@ -14,7 +14,7 @@ const int16_t bear_pid_limit_i=100;
 const int16_t speed_pid_gain_p=2;
 const int16_t speed_pid_gain_d=4;
 const int16_t speed_pid_gain_i=1;
-const int16_t speed_pid_gain_div=10;
+const int16_t speed_pid_gain_div=100;
 const int16_t speed_pid_limit_i=10;
 
 const int M_POW_MIN=30; 
@@ -95,8 +95,8 @@ void Motion::DoCycle(float yaw, int16_t dt)
   // diff
   // LPF 1:1
   //speed = (speed+(int16_t)((int32_t)mov*1000/dt))/2; //mm_s; 
-  // LPF 3:1
-  speed = (speed*3+(int16_t)((int32_t)mov*1000/dt))/4; //mm_s; 
+  // LPF 4:1
+  speed = (speed*4+(int16_t)((int32_t)mov*1000/dt))/5; //mm_s; 
 
   // integrate
 
@@ -151,8 +151,9 @@ void Motion::DoCycle(float yaw, int16_t dt)
           err_speed_i=err_speed_i+(int32_t)err_speed_p*dt/100;             
           if(err_speed_i>speed_pid_limit_i) err_speed_i=speed_pid_limit_i;
           if(err_speed_i<-speed_pid_limit_i) err_speed_i=-speed_pid_limit_i;    
-          delta_pow=-(int16_t)((err_speed_p*speed_pid_gain_p+err_speed_d*speed_pid_gain_d+err_speed_i*speed_pid_gain_i)/speed_pid_gain_div);    
-          // not apply - yet
+          delta_pow=-(int16_t)((err_speed_p*speed_pid_gain_p+err_speed_d*speed_pid_gain_d+err_speed_i*speed_pid_gain_i)/speed_pid_gain_div);              
+          cur_pow[0]+=delta_pow;
+          cur_pow[1]+=delta_pow;
         }
       } else {
         cur_pow[0]=base_pow-delta_pow;
