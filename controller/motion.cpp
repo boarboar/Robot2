@@ -145,7 +145,7 @@ void Motion::DoCycle(float yaw, int16_t dt)
         cur_pow[1]=base_pow-delta_pow;     
         if(lPIDCnt>25) { // 500 ms
           // speed PID; 
-          err_speed_p = speed-iTargSpeed; // direction???       
+          err_speed_p = abs(speed)-abs(iTargSpeed);        
           err_speed_d=err_speed_p-err_speed_p_0;
           err_speed_d=(int32_t)err_speed_d*100/dt;
           err_speed_i=err_speed_i+(int32_t)err_speed_p*dt/100;             
