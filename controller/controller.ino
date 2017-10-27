@@ -76,6 +76,7 @@ ComLogger xLogger;
 Sensor xSensor;
 Motor xMotor;
 Motion xMotion;
+static int16_t iNMeas=0;
 
 static void vSerialOutTask(void *pvParameters) {
     Serial.println("Serial Out Task started.");
@@ -132,10 +133,10 @@ static void vLazyTask(void *pvParameters) {
           if(imu_status==MpuDrv::ST_READY) {  
             //int16_t vcnt=0;
             //int16_t val[16];
-            vcnt=0;
+            //vcnt=0;
             if(xSensor.Acquire()) {
-              vcnt=xSensor.GetNMeas();
-              xSensor.Get(val, vcnt);
+              //vcnt=xSensor.GetNMeas();
+              xSensor.Get(val, iNMeas);
               xSensor.Release();  
             }
             if(vcnt>0) {
@@ -203,6 +204,7 @@ static void vSensorTask(void *pvParameters) {
 
 
 static void vMotionTask(void *pvParameters) {
+    int16_t val[16];
     xLogger.vAddLogMsg("Motion Task started.");    
     for (;;) { 
       vTaskDelay(TASK_DELAY_MOTION); 
@@ -213,8 +215,12 @@ static void vMotionTask(void *pvParameters) {
         MpuDrv::Mpu.Release();
       }
       else continue;
+      if(xSensor.Acquire()) {
+        xSensor.Get(val, iNMeas);
+        xSensor.Release();  
+      }
       if(xMotion.Acquire()) {
-         xMotion.DoCycle(yaw, TASK_DELAY_MOTION);
+         xMotion.DoCycle(yaw, TASK_DELAY_MOTION, val, iNMeas);
          xMotion.Release();
       } 
     }
@@ -244,6 +250,7 @@ void setup() {
     //Wire.begin(SCL_PIN, SDA_PIN);
     Wire.begin();
     MpuDrv::Mpu.init();
+    iNMeas = xSensor.GetNMeas();
      
     Serial.println("Starting...");
     digitalWrite(BOARD_LED_PIN, HIGH);

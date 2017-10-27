@@ -2,10 +2,12 @@ class Motor;
 
 class Motion {  
   public:
+    enum FailReason {CTL_FAIL_NONE=0, CTL_FAIL_INIT=1, CTL_FAIL_WRT=2, CTL_FAIL_RD=3, CTL_FAIL_OVF=4, CTL_FAIL_ALR=5, CTL_FAIL_OBST=6, CTL_FAIL_SENS_CHECK=7,
+      CTL_LOG_PID=100, CTL_LOG_POW=101, CTL_LOG_PBPID=102};
     void Init(Motor *m);    
     void Start();
     void Reset();
-    void DoCycle(float yaw, int16_t dt); 
+    void DoCycle(float yaw, int16_t dt, int16_t *vmeas, int16_t nmeas); 
     void SetMotors(int16_t dp1, int16_t dp2);
     void Move(int16_t tspeed);
     void Steer(int16_t angle);
@@ -23,6 +25,7 @@ class Motion {
     void StartRotate(int16_t tspeed);
     void SetPowerStraight(int16_t dir, int16_t *p);
     void SetPowerRotate(int16_t dir, int16_t *p);
+    int16_t DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t *act_val=NULL);
 
     xSemaphoreHandle xMotionFree;
     //TickType_t xRunTime;

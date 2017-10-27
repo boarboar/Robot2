@@ -1,9 +1,11 @@
 #include <MapleFreeRTOS821.h>
-#include "motion.h"
+#include "comm_mgr.h"
 #include "log.h"
 #include "motor.h"
+#include "motion.h"
 
 extern ComLogger xLogger;
+extern CommManager xCommMgr;
 
 const int16_t bear_pid_gain_p=8;
 const int16_t bear_pid_gain_d=120;
@@ -72,7 +74,7 @@ bool Motion::HasTask() {
   return iTargSpeed || iTargRot;
 }
 
-void Motion::DoCycle(float yaw, int16_t dt) 
+void Motion::DoCycle(float yaw, int16_t dt, int16_t *vmeas, int16_t nmeas) 
 {
   float mov; //mm
   int8_t dir[2];
@@ -141,8 +143,23 @@ void Motion::DoCycle(float yaw, int16_t dt)
 
       int16_t cur_pow[2];
       if(iTargSpeed) {              
+        // do collision avoidance here
+        int16_t action = DoCollisionCheck(speed, vmeas, nmeas);
+        switch(action) {
+          case 1 :
+            Move(0);
+            xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_CTL, CTL_FAIL_OBST, 0); 
+            return;
+            break; // stop
+          case 2 : break; // slow-down
+          case 3 : break; // turn right
+          case 4 : break; // turn left;
+          default:;  // no action
+        }  
+
         cur_pow[0]=base_pow+delta_pow;
         cur_pow[1]=base_pow-delta_pow;     
+        
         if(lPIDCnt>25) { // 500 ms
           // speed PID; 
           err_speed_p = abs(speed)-abs(iTargSpeed);        
@@ -291,6 +308,14 @@ void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
     run_pow[1]=dp2;  
     pxMotor->Release();
   }
+}
+
+int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t *act_val) 
+{
+  if(!vmeas || nmeas<10) return 0;
+  if(speed>0 && (vmeas[2]>0 && vmeas[2]<20)) return -1;
+  if(speed<0 && (vmeas[7]>0 && vmeas[7]<20)) return -1;
+  return 0;
 }
 
 /*
