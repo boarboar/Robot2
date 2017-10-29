@@ -313,7 +313,7 @@ void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
 int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t *act_val) 
 {
   if(!vmeas || nmeas<10) return 0;
-  if(speed>0 && (vmeas[2]>0 && vmeas[2]<40)) return 1; //stop
+  if(speed>0 && (vmeas[2]>0 && vmeas[2]<40)) return 1; //stop ...
   if(speed<0 && (vmeas[7]>0 && vmeas[7]<40)) return 1; //stop
   return 0;
 }
