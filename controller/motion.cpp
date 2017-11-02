@@ -68,6 +68,7 @@ void Motion::Reset() {
   base_pow=0;
   delta_pow=0;    
   speed = 0;
+  collision = 0;
 }
 
 bool Motion::HasTask() {
@@ -144,16 +145,20 @@ void Motion::DoCycle(float yaw, int16_t dt, int16_t *vmeas, int16_t nmeas)
       int16_t cur_pow[2];
       if(iTargSpeed) {              
         // do collision avoidance here
-        int16_t action = DoCollisionCheck(speed, vmeas, nmeas);
-        switch(action) {
+        collision = DoCollisionCheck(speed, vmeas, nmeas);
+        switch(collision) {
           case 1 :
             Move(0);
             xCommMgr.vAddAlarm(CommManager::CM_ALARM, CommManager::CM_MODULE_CTL, CTL_FAIL_OBST, 0); 
             return;
             break; // stop
           case 2 : break; // slow-down
-          case 3 : break; // turn right
-          case 4 : break; // turn left;
+          case 3 : 
+            delta_pow = -base_pow/2;
+            break; // turn right
+          case 4 : 
+            delta_pow = base_pow/2;
+            break; // turn left;
           default:;  // no action
         }  
 
@@ -221,7 +226,7 @@ void Motion::Move(int16_t tspeed)
   iTargSpeed=tspeed*10; //mm
   base_pow=(int32_t)abs(iTargSpeed)*M_POW_NORM/M_SPEED_NORM; // temp
   delta_pow=0;
-   
+  collision=0;
   int16_t cur_pow[2]={base_pow, base_pow};
   //cur_pow[0]=cur_pow[1]=base_pow;
   //xLogger.vAddLogMsg("MV TVB,P*:", iTargSpeed, iTargBearing, cur_pow[0], cur_pow[1]);
@@ -267,7 +272,7 @@ void Motion::StartRotate(int16_t tspeed) {
     //Serial.println(F("Start ROT <<")); 
     }
 
-  xLogger.vAddLogMsg("R TBYR:", iTargBearing, (int16_t)(fCurrYaw*180.0/PI), iTargRot);
+  //xLogger.vAddLogMsg("R TBYR:", iTargBearing, (int16_t)(fCurrYaw*180.0/PI), iTargRot);
   
   err_bearing_p_0=-a;     
   if(err_bearing_p_0<0) err_bearing_p_0=-err_bearing_p_0; 
@@ -276,6 +281,7 @@ void Motion::StartRotate(int16_t tspeed) {
   base_pow=(int32_t)abs(iTargRot)*M_POW_NORM/M_SPEED_NORM; // temp
   delta_pow=0;  
   lPIDCnt=0;    
+  collision=0;
   int16_t cur_pow[2]={base_pow, base_pow};
   //Serial.print(F("STR =")); Serial.print(rot_speed); Serial.print(F("POW=")); Serial.print(cur_pow[0]); Serial.print(F("\t ")); Serial.println(cur_pow[1]);  
   SetPowerRotate(iTargRot, cur_pow);    
@@ -312,9 +318,14 @@ void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
 
 int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t *act_val) 
 {
+  const int STOP_DIST=40;
+  const int AVOID_DIST=60;
   if(!vmeas || nmeas<10) return 0;
-  if(speed>0 && (vmeas[2]>0 && vmeas[2]<40)) return 1; //stop ...
-  if(speed<0 && (vmeas[7]>0 && vmeas[7]<40)) return 1; //stop
+  if(speed>0 && (vmeas[2]>0 && vmeas[2]<STOP_DIST)) return 1; //stop 
+  if(speed<0 && (vmeas[7]>0 && vmeas[7]<STOP_DIST)) return 1; //stop
+  if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST)) {
+    return 4; //left
+  }
   return 0;
 }
 
