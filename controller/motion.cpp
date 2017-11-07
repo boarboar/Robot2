@@ -155,10 +155,10 @@ void Motion::DoCycle(float yaw, int16_t dt, int16_t *vmeas, int16_t nmeas)
           case 2 : break; // slow-down
           case 3 : 
             delta_pow = -base_pow/2;
-            break; // turn right
+            break; // turn left
           case 4 : 
             delta_pow = base_pow/2;
-            break; // turn left;
+            break; // turn right;
           default:;  // no action
         }  
 
@@ -324,8 +324,14 @@ int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, i
   if(speed>0 && (vmeas[2]>0 && vmeas[2]<STOP_DIST)) return 1; //stop 
   if(speed<0 && (vmeas[7]>0 && vmeas[7]<STOP_DIST)) return 1; //stop
   if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST)) {
-    return 4; //left
-  }
+    return 4; //right
+  }  
+  if(speed>0 && (vmeas[1]>0 && vmeas[1]<AVOID_DIST)) {
+    return 4; //right
+  }  
+  if(speed>0 && (vmeas[3]>0 && vmeas[3]<AVOID_DIST)) {
+    return 3; //left
+  }  
   return 0;
 }
 
