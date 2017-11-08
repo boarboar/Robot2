@@ -323,6 +323,13 @@ int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, i
   if(!vmeas || nmeas<10) return 0;
   if(speed>0 && (vmeas[2]>0 && vmeas[2]<STOP_DIST)) return 1; //stop 
   if(speed<0 && (vmeas[7]>0 && vmeas[7]<STOP_DIST)) return 1; //stop
+
+  if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST) && (vmeas[1]>0 && vmeas[1]<AVOID_DIST)) {
+    return 4; //right
+  }  
+  if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST) && (vmeas[3]>0 && vmeas[3]<AVOID_DIST)) {
+    return 3; //left
+  }  
   if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST)) {
     return 4; //right
   }  
