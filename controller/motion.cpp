@@ -154,10 +154,10 @@ void Motion::DoCycle(float yaw, int16_t dt, int16_t *vmeas, int16_t nmeas)
             break; // stop
           case 2 : break; // slow-down
           case 3 : 
-            delta_pow = -base_pow/2;
+            delta_pow -= base_pow/4;
             break; // turn left
           case 4 : 
-            delta_pow = base_pow/2;
+            delta_pow += base_pow/4;
             break; // turn right;
           default:;  // no action
         }  
@@ -318,8 +318,8 @@ void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
 
 int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t *act_val) 
 {
-  const int STOP_DIST=40;
-  const int AVOID_DIST=60;
+  const int STOP_DIST=30;
+  const int AVOID_DIST=50;
   if(!vmeas || nmeas<10) return 0;
   if(speed>0 && (vmeas[2]>0 && vmeas[2]<STOP_DIST)) return 1; //stop 
   if(speed<0 && (vmeas[7]>0 && vmeas[7]<STOP_DIST)) return 1; //stop
@@ -331,14 +331,19 @@ int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, i
     return 3; //left
   }  
   if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST)) {
-    return 4; //right
+    if(vmeas[1]==0) return 3; //left
+    if(vmeas[3]==0) return 4; //right
+    if(vmeas[1]<vmeas[3]) return 4; //right
+    return 3; //left
   }  
+  /*
   if(speed>0 && (vmeas[1]>0 && vmeas[1]<AVOID_DIST)) {
     return 4; //right
   }  
   if(speed>0 && (vmeas[3]>0 && vmeas[3]<AVOID_DIST)) {
     return 3; //left
-  }  
+  } 
+  */ 
   return 0;
 }
 
