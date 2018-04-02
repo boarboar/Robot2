@@ -25,7 +25,7 @@ class Motion {
     void StartRotate(int16_t tspeed);
     void SetPowerStraight(int16_t dir, int16_t *p);
     void SetPowerRotate(int16_t dir, int16_t *p);
-    int16_t DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t *act_val=NULL);
+    int16_t DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t dpow=0, int16_t *act_val=NULL);
 
     xSemaphoreHandle xMotionFree;
     //TickType_t xRunTime;

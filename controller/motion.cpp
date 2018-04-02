@@ -145,7 +145,7 @@ void Motion::DoCycle(float yaw, int16_t dt, int16_t *vmeas, int16_t nmeas)
       int16_t cur_pow[2];
       if(iTargSpeed) {              
         // do collision avoidance here
-        collision = DoCollisionCheck(speed, vmeas, nmeas);
+        collision = DoCollisionCheck(speed, vmeas, nmeas, delta_pow);
         switch(collision) {
           case 1 :
             Move(0);
@@ -154,10 +154,10 @@ void Motion::DoCycle(float yaw, int16_t dt, int16_t *vmeas, int16_t nmeas)
             break; // stop
           case 2 : break; // slow-down
           case 3 : 
-            delta_pow -= base_pow/4;
+            delta_pow = -base_pow/2;
             break; // turn left
           case 4 : 
-            delta_pow += base_pow/4;
+            delta_pow = base_pow/2;
             break; // turn right;
           default:;  // no action
         }  
@@ -316,7 +316,7 @@ void Motion::SetMotors(int16_t dp1, int16_t dp2) // in %%
   }
 }
 
-int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t *act_val) 
+int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, int16_t dpow, int16_t *act_val) 
 {
   const int STOP_DIST=30;
   const int AVOID_DIST=50;
@@ -324,17 +324,22 @@ int16_t Motion::DoCollisionCheck(int16_t speed, int16_t *vmeas, int16_t nmeas, i
   if(speed>0 && (vmeas[2]>0 && vmeas[2]<STOP_DIST)) return 1; //stop 
   if(speed<0 && (vmeas[7]>0 && vmeas[7]<STOP_DIST)) return 1; //stop
 
-  if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST) && (vmeas[1]>0 && vmeas[1]<AVOID_DIST)) {
+  //if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST) && (vmeas[1]>0 && vmeas[1]<AVOID_DIST)) {
+  if(speed>0 && (vmeas[1]>0 && vmeas[1]<STOP_DIST)) {
     return 4; //right
   }  
-  if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST) && (vmeas[3]>0 && vmeas[3]<AVOID_DIST)) {
+  //if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST) && (vmeas[1]>0 && vmeas[1]<AVOID_DIST)) {
+  if(speed>0 && (vmeas[3]>0 && vmeas[3]<STOP_DIST)) {
     return 3; //left
   }  
   if(speed>0 && (vmeas[2]>0 && vmeas[2]<AVOID_DIST)) {
-    if(vmeas[1]==0) return 3; //left
-    if(vmeas[3]==0) return 4; //right
-    if(vmeas[1]<vmeas[3]) return 4; //right
-    return 3; //left
+    if(dpow==0) {
+      if(vmeas[1]==0) return 3; //left
+      if(vmeas[3]==0) return 4; //right
+      if(vmeas[1]<vmeas[3]) return 4; //right
+      return 3; //left
+    }
+    else return dpow>0 ? 4 : 3;
   }  
   /*
   if(speed>0 && (vmeas[1]>0 && vmeas[1]<AVOID_DIST)) {
