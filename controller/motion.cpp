@@ -153,12 +153,12 @@ void Motion::DoCycle(float yaw, int16_t dt, int16_t *vmeas, int16_t nmeas)
             return;
             break; // stop
           case 2 : break; // slow-down
-          case 3 : 
+          case 3 : // turn left
             delta_pow = -base_pow/2;
-            break; // turn left
-          case 4 : 
+            break; 
+          case 4 : // turn right;
             delta_pow = base_pow/2;
-            break; // turn right;
+            break; 
           default:;  // no action
         }  
 

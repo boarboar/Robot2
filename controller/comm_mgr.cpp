@@ -117,11 +117,14 @@ boolean CommManager::ProcessCommand()
         vcnt=1;
         val[0]=xSensor.GetNMeas();
         break;        
-      case REG_STATUS:
+      case REG_STATUS:{
+        int8_t imu_stat=0;
+        int8_t mot_stat=0;
         // St[0] yaw[1] X[2] Y[3] Dist[4] PW[5] PW[6] Speed[7]
         vcnt=8;
         if(MpuDrv::Mpu.Acquire()) {
-          val[0]=MpuDrv::Mpu.getStatus();
+          //val[0]=MpuDrv::Mpu.getStatus();
+          imu_stat=MpuDrv::Mpu.getStatus();
           val[1]=MpuDrv::Mpu.getYaw()*180.0/PI;
           MpuDrv::Mpu.Release();
         }
@@ -132,7 +135,9 @@ boolean CommManager::ProcessCommand()
           val[7]=xMotion.GetSpeedCmpS();
           xMotion.Release();
         }
+        val[0] = (uint8_t)imu_stat;
         break;  
+      }
       case REG_ENC:
         vcnt=2;
         if (xMotor.GetEncDistMM((uint16_t*)val, NULL)) { //BAD !!!
