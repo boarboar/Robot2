@@ -120,7 +120,7 @@ uint8_t Controller::_getData_1() {
   //uint16_t cnt=cmgr.GetResultCnt();
   const int16_t *v=cmgr.GetResultVal();
 
-  imu_stat=v[0]&0xFF;
+  imu_stat=((uint16_t)v[0])&0xFF;
   yaw=v[1];
   crd[0]=v[2];
   crd[1]=v[3];
