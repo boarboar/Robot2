@@ -152,11 +152,21 @@ boolean CommManager::ProcessCommand()
         }
         break;
       case REG_SENS:
+      {
+        int16_t vel=0;
+        // get the velocity first to us sensor correction
+        if(xMotion.Acquire()) {
+          vel=xMotion.GetSpeedCmpS();
+          xMotion.Release();
+        }
         if(xSensor.Acquire()) {
           vcnt=xSensor.GetNMeas();
-          xSensor.Get(val, vcnt);
+          //xSensor.Get(val, vcnt);
+          // TODO - pass vel
+          xSensor.GetCompensated(val, vcnt, 0);
           xSensor.Release();
         }
+      }
         break;
       case REG_ALL:
          // St[0] yaw[1] X[2] Y[3] Dist[4] Sens[5..14]

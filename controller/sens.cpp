@@ -73,8 +73,10 @@ void Sensor::Init(int servo_pin, int sens_in_pin_0, int sens_out_pin_0, int sens
       t0[i]=0;
       sens_state[i]=0;
     }
-    for(i=0; i<M_SENS_N; i++) 
+    for(i=0; i<M_SENS_N; i++) {
       value[i]=-2;
+      xMeasTime[i]=0;
+    }
     for(i=0; i<=SERVO_NSTEPS; i++)   
       fCosines[i] = cos((float)i*SERVO_STEP*PI/180);
     sservo_pos=0; //90
@@ -167,7 +169,8 @@ void Sensor::DoCycle() {
         else d=0;              
       }
       xTaskToNotify = NULL;
-
+      /*
+      // TODO - baseshft move to getcompensated!!!
       if(d>0 && USENS_BASE!=0) {  // base shift
         if(sens_step==0) { //fwd
           // sqrt(dist*dist+b*b+2*b*dist*cos(a)**2)
@@ -180,11 +183,13 @@ void Sensor::DoCycle() {
           if(d<1) d=1;
         }
       }
+      */
 
       if(Acquire()) 
       {
         if(d>0) value[current_sens]=(int16_t)(d/USENS_DIVISOR);        
         else value[current_sens] = -2;
+        xMeasTime[current_sens]=xTaskGetTickCount();
         Release();  
       }
       vTaskDelay(1);
@@ -204,4 +209,33 @@ void Sensor::Get(int16_t *v, int16_t n) {
   for(int i=0; i<n; i++)
     v[i]=value[i];
 }
+
+void Sensor::GetCompensated(int16_t *v, int16_t n, int16_t velocity) {
+  TickType_t now = xTaskGetTickCount();
+  if(n>M_SENS_N) n=M_SENS_N;
+
+  for(int16_t s_pos=-SERVO_NSTEPS; s_pos<=SERVO_NSTEPS; s_pos++) { //-2 -1 0 1 2 
+    for(uint16_t sens_step=0; sens_step<2; sens_step++) {  // 0..1 front/back
+      int8_t i=-s_pos+SERVO_NSTEPS+sens_step*(SERVO_NSTEPS*2+1); 
+      if(i>n) continue;
+      int16_t d=value[i];
+      int16_t head=USENS_BASE-((int32_t)xMeasTime[i]*velocity/1000); // sensor ahead of base - distance run after measurement
+      if(d>0 && head!=0) {  // base shift
+        if(sens_step==0) { //fwd
+          // sqrt(dist*dist+b*b+2*b*dist*cos(a)**2)
+          if(sservo_pos==0) d += head;
+          else d=sqrt(2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+head*head);
+        } else { //bck
+          // sqrt(dist*dist+b*b-2*b*dist*cos(a)**2)
+          if(sservo_pos==0) d -= head;
+          else d=sqrt(-2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+head*head);
+          if(d<1) d=1;
+        }
+      }
+      v[i]=d;
+    }
+  }
+}
+ 
+
 

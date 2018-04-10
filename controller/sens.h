@@ -11,6 +11,7 @@ class Sensor {
     int16_t GetNMeas();
     int16_t Get();
     void Get(int16_t *v, int16_t n);
+    void GetCompensated(int16_t *v, int16_t n, int16_t velocity);
     bool Acquire();
     void Release();
     void echoInterrupt(uint16_t i);
@@ -28,5 +29,6 @@ class Sensor {
     TaskHandle_t xTaskToNotify;
     bool running;
     float fCosines[SERVO_NSTEPS+1];
+    TickType_t xMeasTime[M_SENS_N];
 };
 
