@@ -224,11 +224,11 @@ void Sensor::GetCompensated(int16_t *v, int16_t n, int16_t velocity) {
         if(sens_step==0) { //fwd
           // sqrt(dist*dist+b*b+2*b*dist*cos(a)**2)
           if(sservo_pos==0) d += head;
-          else d=sqrt(2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+head*head);
+          else d=sqrt(2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+(float)head*head);
         } else { //bck
           // sqrt(dist*dist+b*b-2*b*dist*cos(a)**2)
           if(sservo_pos==0) d -= head;
-          else d=sqrt(-2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+head*head);
+          else d=sqrt(-2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+(float)head*head);
           if(d<1) d=1;
         }
       }

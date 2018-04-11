@@ -162,8 +162,7 @@ boolean CommManager::ProcessCommand()
         if(xSensor.Acquire()) {
           vcnt=xSensor.GetNMeas();
           //xSensor.Get(val, vcnt);
-          // TODO - pass vel
-          xSensor.GetCompensated(val, vcnt, 0);
+          xSensor.GetCompensated(val, vcnt, vel);
           xSensor.Release();
         }
       }
