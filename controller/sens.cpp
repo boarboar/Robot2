@@ -218,19 +218,26 @@ void Sensor::GetCompensated(int16_t *v, int16_t n, int16_t velocity) {
     for(uint16_t sens_step=0; sens_step<2; sens_step++) {  // 0..1 front/back
       int8_t i=-s_pos+SERVO_NSTEPS+sens_step*(SERVO_NSTEPS*2+1); 
       if(i>n) continue;
-      int16_t d=value[i];
+      int16_t d=value[i];      
       int16_t head=USENS_BASE-((int32_t)xMeasTime[i]*velocity/1000); // sensor ahead of base - distance run after measurement
+      float f;
       if(d>0 && head!=0) {  // base shift
         if(sens_step==0) { //fwd
           // sqrt(dist*dist+b*b+2*b*dist*cos(a)**2)
           if(sservo_pos==0) d += head;
-          else d=sqrt(2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+(float)head*head);
+          else {
+            f=2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+(float)head*head;
+            d=f<=2.0 ? 1.0 : sqrt(f);             
+          }
         } else { //bck
           // sqrt(dist*dist+b*b-2*b*dist*cos(a)**2)
           if(sservo_pos==0) d -= head;
-          else d=sqrt(-2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+(float)head*head);
-          if(d<1) d=1;
+          else {
+             f=-2.0f*d*head*fCosines[abs(s_pos)]+(float)d*d+(float)head*head;
+             d=f<=2.0 ? 1.00 : sqrt(f);             
+          }          
         }
+        if(d<1) d=1;          
       }
       v[i]=d;
     }
