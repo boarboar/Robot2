@@ -219,7 +219,8 @@ void Sensor::GetCompensated(int16_t *v, int16_t n, int16_t velocity) {
       int8_t i=-s_pos+SERVO_NSTEPS+sens_step*(SERVO_NSTEPS*2+1); 
       if(i>n) continue;
       int16_t d=value[i];      
-      int16_t head=USENS_BASE-((int32_t)xMeasTime[i]*velocity/1000); // sensor ahead of base - distance run after measurement
+      int16_t head=USENS_BASE-((int32_t)(now-xMeasTime[i])*velocity/1000); // sensor ahead of base - distance run after measurement
+      //int16_t head=0;
       float f;
       if(d>0 && head!=0) {  // base shift
         if(sens_step==0) { //fwd
